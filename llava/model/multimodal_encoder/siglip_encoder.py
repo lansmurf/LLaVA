@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 
-from transformers import SigLipVisionModel, SigLipImageProcessor, SigLipVisionConfig
+from transformers import SiglipVisionModel, SiglipImageProcessor, SiglipVisionConfig
 
 
-class SigLipVisionTower(nn.Module):
+class SiglipVisionTower(nn.Module):
     def __init__(self, vision_tower, args, delay_load=False):
         super().__init__()
 
@@ -19,15 +19,15 @@ class SigLipVisionTower(nn.Module):
         elif getattr(args, 'unfreeze_mm_vision_tower', False):
             self.load_model()
         else:
-            self.cfg_only = SigLipVisionConfig.from_pretrained(self.vision_tower_name)
+            self.cfg_only = SiglipVisionConfig.from_pretrained(self.vision_tower_name)
 
     def load_model(self, device_map=None):
         if self.is_loaded:
             print('{} is already loaded, `load_model` called again, skipping.'.format(self.vision_tower_name))
             return
 
-        self.image_processor = SigLipImageProcessor.from_pretrained(self.vision_tower_name)
-        self.vision_tower = SigLipVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map)
+        self.image_processor = SiglipImageProcessor.from_pretrained(self.vision_tower_name)
+        self.vision_tower = SiglipVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map)
         self.vision_tower.requires_grad_(False)
 
         self.is_loaded = True
@@ -89,7 +89,7 @@ class SigLipVisionTower(nn.Module):
 
 
 
-class SigLipVisionTowerS2(SigLipVisionTower):
+class SiglipVisionTowerS2(SiglipVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
         super().__init__(vision_tower, args, delay_load)
 
@@ -115,8 +115,8 @@ class SigLipVisionTowerS2(SigLipVisionTower):
             print('{} is already loaded, `load_model` called again, skipping.'.format(self.vision_tower_name))
             return
 
-        self.image_processor = SigLipImageProcessor.from_pretrained(self.vision_tower_name)
-        self.vision_tower = SigLipVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map)
+        self.image_processor = SiglipImageProcessor.from_pretrained(self.vision_tower_name)
+        self.vision_tower = SiglipVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map)
         self.vision_tower.requires_grad_(False)
 
         self.image_processor.size['shortest_edge'] = self.s2_image_size
