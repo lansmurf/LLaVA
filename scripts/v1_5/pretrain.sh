@@ -2,7 +2,7 @@
 
 deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero2.json \
-    --model_name_or_path /home/nicolas.joniaux/Desktop/models/models--mistralai--Mistral-7B-Instruct-v0.2/snapshots/41b61a33a2483885c981aa79e0df6b32407ed873 \
+    --model_name_or_path mistralai/Mistral-7B-Instruct-v0.2 \
     --version plain \
     --data_path /home/nicolas.joniaux/Desktop/llava/chat.json \
     --image_folder /home/nicolas.joniaux/Desktop/llava \
