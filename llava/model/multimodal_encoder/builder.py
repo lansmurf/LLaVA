@@ -1,5 +1,5 @@
 import os
-from .clip_encoder import SigLipVisionTower, SigLipVisionTowerS2
+from .siglip_encoder import SigLipVisionTower, SigLipVisionTowerS2
 
 
 def build_vision_tower(vision_tower_cfg, **kwargs):
