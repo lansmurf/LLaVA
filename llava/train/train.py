@@ -486,6 +486,13 @@ def preprocess_llama_3(
                     f" (ignored)"
                 )
 
+    print(f"-------------------------------------\n"
+          f"INPUT_IDS_SHAPE {input_ids.shape}\n"
+          f"TARGETS SHAPE {targets.shape}\n"
+          f"INPUT IDS ARE {input_ids}\n"
+          f"TARGET IS {targets}\n"
+          f"-------------------------------------\n")
+
     return dict(
         input_ids=input_ids,
         labels=targets,
