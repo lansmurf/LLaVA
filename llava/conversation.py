@@ -92,6 +92,25 @@ class Conversation:
                 else:
                     ret += ""
             ret = ret.lstrip(self.sep)
+
+        elif self.sep_style == SeparatorStyle.LLAMA_3:
+            print('llama3 conv type')
+            wrap_sys = lambda msg: f"<|start_header_id|>system<|end_of_header|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
+            wrap_inst = lambda msg: f"<|start_header_id|>user<|end_of_header|>\n\n{msg}<|eot_id|>"
+            ret = self.sep + wrap_sys(self.system)  # Apply _BOS_ only at the start
+
+            for i, (role, message) in enumerate(messages):
+                if type(message) is tuple:
+                    message, _, _ = message
+                if i % 2 == 0:
+                    message = wrap_inst(message)
+                    ret += message
+                else:
+                    ret += " " + message
+
+            ret += self.sep2  # Apply _EOS_ only at the end
+            ret = ret.lstrip(self.sep)
+
         elif self.sep_style == SeparatorStyle.PLAIN:
             seps = [self.sep, self.sep2]
             ret = self.system
@@ -370,6 +389,17 @@ Answer the questions.""",
     sep="<|im_end|>",
 )
 
+conv_llama_3 = Conversation(
+    system="""You are a helpful, respectful and honest assistant. Always answer as helpfully as possible.""",
+    roles=("user", "assistant"),
+    version="llama_3",
+    messages=(),
+    offset=0,
+    sep_style=SeparatorStyle.LLAMA_3,  # Updated to the new separator style for version 3
+    sep="<|begin_of_text|>",  # New separator token for beginning new messages
+    sep2="<|end_of_text|>",  # New separator token for closing messages or separating parts within messages
+)
+
 default_conversation = conv_vicuna_v1
 conv_templates = {
     "default": conv_vicuna_v0,
@@ -380,6 +410,7 @@ conv_templates = {
     "mistral_instruct": conv_mistral_instruct,
     "chatml_direct": conv_chatml_direct,
     "mistral_direct": conv_chatml_direct,
+    "llama_3": conv_llama_3,
 
     "plain": conv_llava_plain,
     "v0_plain": conv_llava_plain,
