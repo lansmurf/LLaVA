@@ -900,6 +900,22 @@ def train(attn_implementation=None):
                 tokenizer=tokenizer,
                 model=model,
             )
+
+    elif "llama-3" in model_args.model_name_or_path:
+        if tokenizer.pad_token is None:
+            smart_tokenizer_and_embedding_resize(
+                special_tokens_dict=dict(pad_token="[PAD]"),
+                tokenizer=tokenizer,
+                model=model,
+            )
+        else:
+            tokenizer.pad_token = None
+            print('Resizing for PAD compatibility')
+            smart_tokenizer_and_embedding_resize(
+                special_tokens_dict=dict(pad_token="[PAD]"),
+                tokenizer=tokenizer,
+                model=model,
+            )
     elif model_args.version == "v0.5":
         tokenizer.pad_token = tokenizer.unk_token
     else:
