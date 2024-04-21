@@ -436,6 +436,7 @@ def preprocess_v1(
     # Tokenize conversations
 
     if has_image:
+        print('GOING HERE IT SEEMS')
         input_ids = torch.stack([tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations], dim=0)
     else:
         input_ids = tokenizer(
