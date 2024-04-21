@@ -694,8 +694,6 @@ def preprocess_plain(
         target[:tokenized_len] = IGNORE_INDEX
 
     print(f"-------------------------------------\n"
-          f"INPUT_IDS_SHAPE {input_ids.shape}\n"
-          f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
           f"TARGET IS {targets}\n"
           f"-------------------------------------\n")
