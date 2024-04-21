@@ -916,6 +916,7 @@ def train(attn_implementation=None):
             tokenizer.pad_token = None
             print('PAD compatibility')
             tokenizer.pad_token_id = 128002
+            tokenizer.clean_up_tokenization_spaces = False
             print('New PAD token id: ', tokenizer.pad_token)
 
     elif model_args.version == "v0.5":
