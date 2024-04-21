@@ -119,6 +119,17 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                     low_cpu_mem_usage=True,
                     **kwargs
                 )
+
+    elif 'pretrain' in model_name:
+        print('loading adapter')
+        tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
+        cfg_pretrained = LlavaMistralConfig.from_pretrained(model_path)
+        model = LlavaMistralForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
+                                                        **kwargs)
+        mm_projector_weights = torch.load(os.path.join(model_path, 'mm_projector.bin'), map_location='cpu')
+        mm_projector_weights = {k: v.to(torch.float16) for k, v in mm_projector_weights.items()}
+        model.load_state_dict(mm_projector_weights, strict=False)
+
     else:
         # Load language model
         if model_base is not None:
@@ -133,15 +144,6 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
             print('Convert to FP16...')
             model.to(torch.float16)
 
-            if 'pretrain' in model_base:
-                print('loading adapter')
-                tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
-                cfg_pretrained = LlavaMistralConfig.from_pretrained(model_path)
-                model = LlavaMistralForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
-                                                              **kwargs)
-                mm_projector_weights = torch.load(os.path.join(model_path, 'mm_projector.bin'), map_location='cpu')
-                mm_projector_weights = {k: v.to(torch.float16) for k, v in mm_projector_weights.items()}
-                model.load_state_dict(mm_projector_weights, strict=False)
         else:
             use_fast = False
             if 'mpt' in model_name.lower():
