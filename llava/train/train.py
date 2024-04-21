@@ -837,7 +837,7 @@ def train(attn_implementation=None):
         else:
             print('here')
             #switch here
-            if 'llama' in model_args.model_name_or_path
+            if 'llama' in model_args.model_name_or_path.lower():
                 model = LlavaLlamaForCausalLM.from_pretrained(
                     model_args.model_name_or_path,
                     cache_dir=training_args.cache_dir,
