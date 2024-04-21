@@ -447,7 +447,7 @@ def preprocess_llama_3(
 
     targets = input_ids.clone()
 
-    assert conv.sep_style == conversation_lib.SeparatorStyle.LLAMA_2
+    assert conv.sep_style == conversation_lib.SeparatorStyle.LLAMA_3
 
     # Mask targets
     sep = "<|eot_id|> "
