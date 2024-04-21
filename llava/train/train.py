@@ -453,7 +453,7 @@ def preprocess_v1(
     sep = conv.sep + conv.roles[1] + ": "
     for idx, (conversation, target) in enumerate(zip(conversations, targets)):
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
-        print("INPUT IDS SHAPE: ", input_ids)
+        print("INPUT IDS SHAPE: ", input_ids.shape)
         print(f"Total non-pad tokens for conversation {idx}: {total_len}")
 
         rounds = conversation.split(conv.sep2)
