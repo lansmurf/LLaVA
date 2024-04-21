@@ -1028,7 +1028,8 @@ def train(attn_implementation=None):
             tokenizer.pad_token = None
             print('PAD compatibility')
             tokenizer.pad_token_id = 128002
-            print('New PAD token id: ', tokenizer.pad_token)
+            print('New PAD token id and using llama3 template: ', tokenizer.pad_token)
+            conversation_lib.default_conversation = conversation_lib.conv_templates['llama_3']
 
     elif model_args.version == "v0.5":
         tokenizer.pad_token = tokenizer.unk_token
