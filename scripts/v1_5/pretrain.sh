@@ -2,7 +2,7 @@
 
 deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero2.json \
-    --model_name_or_path mistral-community/Mistral-7B-v0.2 \
+    --model_name_or_path unsloth/llama-3-8b-Instruct \
     --version plain \
     --data_path /home/nicolas.joniaux/Desktop/llava/chat.json \
     --image_folder /home/nicolas.joniaux/Desktop/llava \
@@ -15,9 +15,9 @@ deepspeed llava/train/train_mem.py \
     --bf16 True \
     --output_dir ./checkpoints/pretrain \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 30 \
+    --per_device_train_batch_size 20 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 2 \
+    --gradient_accumulation_steps 4 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 24000 \

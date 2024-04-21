@@ -825,7 +825,8 @@ def train(attn_implementation=None):
             )
         else:
             print('here')
-            model = LlavaMistralForCausalLM.from_pretrained(
+            #switch here
+            model = LlavaLlamaForCausalLM.from_pretrained(
                 model_args.model_name_or_path,
                 cache_dir=training_args.cache_dir,
                 attn_implementation=attn_implementation,
