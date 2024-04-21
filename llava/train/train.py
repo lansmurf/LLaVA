@@ -429,15 +429,14 @@ def preprocess_v1(
         conv.messages = []
         for j, sentence in enumerate(source):
             role = roles[sentence["from"]]
-            assert role == conv.roles[j % 2], f"{i}"
+            assert role == conv.roles[j % 2], f"Role mismatch at conversation {i}, message {j}"
             conv.append_message(role, sentence["value"])
         conversations.append(conv.get_prompt())
 
     # Tokenize conversations
-
     if has_image:
-        print('GOING HERE IT SEEMS')
-        input_ids = torch.stack([tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations], dim=0)
+        input_ids = torch.stack(
+            [tokenizer_image_token(prompt, tokenizer, return_tensors='pt') for prompt in conversations], dim=0)
     else:
         input_ids = tokenizer(
             conversations,
@@ -448,24 +447,25 @@ def preprocess_v1(
         ).input_ids
 
     targets = input_ids.clone()
-
     assert conv.sep_style == conversation_lib.SeparatorStyle.TWO
 
     # Mask targets
     sep = conv.sep + conv.roles[1] + ": "
-    for conversation, target in zip(conversations, targets):
+    for idx, (conversation, target) in enumerate(zip(conversations, targets)):
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
+        print("INPUT IDS SHAPE: ", input_ids)
+        print(f"Total non-pad tokens for conversation {idx}: {total_len}")
 
         rounds = conversation.split(conv.sep2)
         cur_len = 1
         target[:cur_len] = IGNORE_INDEX
         for i, rou in enumerate(rounds):
             if rou == "":
-                break
+                continue
 
             parts = rou.split(sep)
             if len(parts) != 2:
-                break
+                continue
             parts[0] += sep
 
             if has_image:
@@ -479,17 +479,19 @@ def preprocess_v1(
                 round_len -= 1
                 instruction_len -= 1
 
-            target[cur_len : cur_len + instruction_len] = IGNORE_INDEX
+            print(f"Round {i} token lengths - Round: {round_len}, Instruction: {instruction_len}")
 
+            target[cur_len: cur_len + instruction_len] = IGNORE_INDEX
             cur_len += round_len
+
         target[cur_len:] = IGNORE_INDEX
+        print(f"Accumulated length for conversation {idx}: {cur_len}")
 
         if cur_len < tokenizer.model_max_length:
             if cur_len != total_len:
                 target[:] = IGNORE_INDEX
                 print(
-                    f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
-                    f" (ignored)"
+                    f"WARNING: tokenization mismatch in conversation {idx}: {cur_len} vs. {total_len}. (ignored)"
                 )
 
     return dict(
@@ -916,7 +918,6 @@ def train(attn_implementation=None):
             tokenizer.pad_token = None
             print('PAD compatibility')
             tokenizer.pad_token_id = 128002
-            tokenizer.clean_up_tokenization_spaces = False
             print('New PAD token id: ', tokenizer.pad_token)
 
     elif model_args.version == "v0.5":
