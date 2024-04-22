@@ -450,7 +450,7 @@ def preprocess_llama_3(
     assert conv.sep_style == conversation_lib.SeparatorStyle.LLAMA_3
 
     # Mask targets
-    sep = "<|eot_id|>"
+    sep = "\n\n"
     for conversation, target in zip(conversations, targets):
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
 

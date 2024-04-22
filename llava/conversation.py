@@ -110,7 +110,7 @@ class Conversation:
                     message = wrap_assistant(message)
                     ret += message
 
-            ret += self.sep2  # Apply _EOS_ only at the end
+            #ret += self.sep2  # Apply _EOS_ only at the end
 
         elif self.sep_style == SeparatorStyle.PLAIN:
             seps = [self.sep, self.sep2]
