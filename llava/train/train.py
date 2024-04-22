@@ -455,7 +455,7 @@ def preprocess_llama_3(
     # <|start_header_id|>user<|end_header_id|>\n\n<image>\nSummarize the visual content of the image.<|eot_id|>
     # <|start_header_id|>assistant<|end_header_id|>\n\n\n goldfish in front of a white background<|eot_id|><|end_of_text|>
 
-    def split_into_rounds(conversation, delimiter='eot_id', every_n=3):
+    def split_into_rounds(conversation, delimiter='<|eot_id|>', every_n=3):
         rounds = []
         current_round = []
         count = 0
