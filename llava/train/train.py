@@ -529,6 +529,8 @@ def preprocess_llama_3(
           f"INPUT IDS ARE {input_ids}\n"
           f"TARGET IS {targets}\n"
           f"CONVERSATION IS {conversations}"
+          f"PARTS ARE {parts}"
+          f"ROUND IS {rounds}"
           f"-------------------------------------\n")
 
     return dict(
