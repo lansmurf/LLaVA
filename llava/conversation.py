@@ -94,7 +94,6 @@ class Conversation:
             ret = ret.lstrip(self.sep)
 
         elif self.sep_style == SeparatorStyle.LLAMA_3:
-            print('llama3 conv type')
             wrap_sys = lambda msg: f"<|start_header_id|>system<|end_header_id|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
             wrap_user = lambda msg: f"<|start_header_id|>user<|end_header_id|>\n\n{msg}<|eot_id|>"
             wrap_assistant = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n{msg}<|eot_id|>"
