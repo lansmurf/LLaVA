@@ -461,16 +461,17 @@ def preprocess_llama_3(
             if rou == "":
                 break
 
-            parts = rou.split(sep)
-            if len(parts) % 3 != 0:
+            parts = rou.rsplit(sep, 1)  # This splits rou at the last occurrence of sep
+
+            if len(parts) != 2:
                 break
 
             if has_image:
                 round_len = len(tokenizer_image_token(rou, tokenizer))
-                instruction_len = len(tokenizer_image_token(parts[1], tokenizer)) - 2
+                instruction_len = len(tokenizer_image_token(parts[0], tokenizer)) - 2
             else:
                 round_len = len(tokenizer(rou).input_ids)
-                instruction_len = len(tokenizer(parts[1]).input_ids) - 2
+                instruction_len = len(tokenizer(parts[0]).input_ids) - 2
 
             target[cur_len : cur_len + instruction_len] = IGNORE_INDEX
 
