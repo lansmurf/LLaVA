@@ -15,9 +15,9 @@ deepspeed llava/train/train_mem.py \
     --bf16 True \
     --output_dir ./checkpoints/pretrain \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 20 \
+    --per_device_train_batch_size 12 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 4 \
+    --gradient_accumulation_steps 7 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
     --save_steps 24000 \
