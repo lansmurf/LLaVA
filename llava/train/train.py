@@ -395,6 +395,7 @@ def preprocess_llama_2(
             target[cur_len : cur_len + instruction_len] = IGNORE_INDEX
 
             cur_len += round_len
+
         target[cur_len:] = IGNORE_INDEX
 
         if cur_len < tokenizer.model_max_length:
@@ -513,6 +514,7 @@ def preprocess_llama_3(
             target[cur_len : cur_len + instruction_len] = IGNORE_INDEX
 
             cur_len += round_len
+
         target[cur_len:] = IGNORE_INDEX
 
         if cur_len < tokenizer.model_max_length:
@@ -527,12 +529,13 @@ def preprocess_llama_3(
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
           f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
-          f"TARGET IS {targets}\n"
+          f"TARGET IS {target}\n"
           f"CONVERSATION IS {conversations}\n"
           f"ROUND IS {rounds}\n"
           f"PARTS ARE {parts}\n"
           f"INSTRUCTION LEN IS {instruction_len}\n"
           f"ROUND LEN IS {round_len}\n"
+          f"CUR LEN IS {cur_len}\n"
           f"-------------------------------------\n")
 
     return dict(
