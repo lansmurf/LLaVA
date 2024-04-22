@@ -450,20 +450,57 @@ def preprocess_llama_3(
     assert conv.sep_style == conversation_lib.SeparatorStyle.LLAMA_3
 
     # Mask targets
+
+    #<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible.<|eot_id|>
+    # <|start_header_id|>user<|end_header_id|>\n\n<image>\nSummarize the visual content of the image.<|eot_id|>
+    # <|start_header_id|>assistant<|end_header_id|>\n\n\n goldfish in front of a white background<|eot_id|><|end_of_text|>
+
+    def split_into_rounds(conversation, delimiter='eot_id', every_n=3):
+        rounds = []
+        current_round = []
+        count = 0
+
+        # Split the conversation by 'eot_id'
+        segments = conversation.split(delimiter)
+
+        # Iterate over each segment to build rounds
+        for i, segment in enumerate(segments):
+            if segment:  # Check if segment is not empty
+                # Append segment with delimiter unless it's the last segment and it's incomplete
+                if i < len(segments) - 1:
+                    current_round.append(segment + delimiter)
+                else:
+                    current_round.append(segment)
+                count += 1
+
+                # Every third 'eot_id', we form a complete round
+                if count == every_n:
+                    # Join the parts of the round and add it to rounds list
+                    rounds.append(''.join(current_round))
+                    current_round = []  # Reset for the next round
+                    count = 0
+
+        # In case there's any leftover segments not forming a complete round
+        if current_round:
+            rounds.append(''.join(current_round))
+
+        return rounds
+
     sep = "<|end_header_id|>\n\n"
     for conversation, target in zip(conversations, targets):
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
 
-        rounds = conversation.split(conv.sep2)
+        rounds = split_into_rounds(conversation)
         cur_len = 1
         target[:cur_len] = IGNORE_INDEX
         for i, rou in enumerate(rounds):
             if rou == "":
                 break
 
-            parts = rou.rsplit(sep, 1)  # This splits rou at the last occurrence of sep
+            parts = split_into_rounds(rou, '<|end_header_id|>\n\n')  # This splits rou at the last occurrence of sep
 
             if len(parts) != 2:
+                print('PARTS NOT 2')
                 break
 
             if has_image:
