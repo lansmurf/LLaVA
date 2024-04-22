@@ -518,7 +518,7 @@ def preprocess_llama_3(
         target[cur_len:] = IGNORE_INDEX
 
         if cur_len < tokenizer.model_max_length:
-            if cur_len != total_len:
+            if cur_len < total_len:
                 target[:] = IGNORE_INDEX
                 print(
                     f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
@@ -529,7 +529,7 @@ def preprocess_llama_3(
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
           f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
-          f"TARGET IS {target}\n"
+          f"TARGET IS {targets}\n"
           f"CONVERSATION IS {conversations}\n"
           f"ROUND IS {rounds}\n"
           f"PARTS ARE {parts}\n"
