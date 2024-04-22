@@ -31,7 +31,9 @@ def main(args):
     model_name = get_model_name_from_path(args.model_path)
     tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, args.load_8bit, args.load_4bit, device=args.device)
 
-    if "llama-2" in model_name.lower():
+    if "llama-3" in model_name.lower():
+        conv_mode = "llava_llama_3"
+    elif "llama-2" in model_name.lower():
         conv_mode = "llava_llama_2"
     elif "mistral" in model_name.lower():
         conv_mode = "mistral_instruct"
@@ -82,7 +84,7 @@ def main(args):
             else:
                 inp = DEFAULT_IMAGE_TOKEN + '\n' + inp
             image = None
-        
+
         conv.append_message(conv.roles[0], inp)
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
