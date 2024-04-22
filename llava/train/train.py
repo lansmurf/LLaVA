@@ -450,7 +450,7 @@ def preprocess_llama_3(
     assert conv.sep_style == conversation_lib.SeparatorStyle.LLAMA_3
 
     # Mask targets
-    sep = "\n\n"
+    sep = "<|end_header_id|>\n\n"
     for conversation, target in zip(conversations, targets):
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
 
@@ -462,16 +462,15 @@ def preprocess_llama_3(
                 break
 
             parts = rou.split(sep)
-            if len(parts) != 2:
+            if len(parts) % 3 != 0:
                 break
-            parts[0] += sep
 
             if has_image:
                 round_len = len(tokenizer_image_token(rou, tokenizer))
-                instruction_len = len(tokenizer_image_token(parts[0], tokenizer)) - 2
+                instruction_len = len(tokenizer_image_token(parts[1], tokenizer)) - 2
             else:
                 round_len = len(tokenizer(rou).input_ids)
-                instruction_len = len(tokenizer(parts[0]).input_ids) - 2
+                instruction_len = len(tokenizer(parts[1]).input_ids) - 2
 
             target[cur_len : cur_len + instruction_len] = IGNORE_INDEX
 
