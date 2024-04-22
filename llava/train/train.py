@@ -525,7 +525,7 @@ def preprocess_llama_3(
                     f" (ignored)"
                 )
 
-    print(f"-------------------------------------\n"
+    '''print(f"-------------------------------------\n"
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
           f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
@@ -536,7 +536,7 @@ def preprocess_llama_3(
           f"INSTRUCTION LEN IS {instruction_len}\n"
           f"ROUND LEN IS {round_len}\n"
           f"CUR LEN IS {cur_len}\n"
-          f"-------------------------------------\n")
+          f"-------------------------------------\n")'''
 
     return dict(
         input_ids=input_ids,
@@ -586,13 +586,6 @@ def preprocess_v1(
     sep = conv.sep + conv.roles[1] + ": "
     for idx, (conversation, target) in enumerate(zip(conversations, targets)):
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
-        print(f"-------------------------------------\n"
-              f"INPUT_IDS_SHAPE {input_ids.shape}\n"
-              f"TARGETS SHAPE {targets.shape}\n"
-              f"INPUT IDS ARE {input_ids}\n"
-              f"TARGET IS {targets}\n"
-              f"Total non-pad tokens for conversation {idx}: {total_len}\n"
-              f"-------------------------------------\n")
 
         rounds = conversation.split(conv.sep2)
         cur_len = 1
@@ -617,13 +610,13 @@ def preprocess_v1(
                 round_len -= 1
                 instruction_len -= 1
 
-            print(f"Round {i} token lengths - Round: {round_len}, Instruction: {instruction_len}")
+            #print(f"Round {i} token lengths - Round: {round_len}, Instruction: {instruction_len}")
 
             target[cur_len: cur_len + instruction_len] = IGNORE_INDEX
             cur_len += round_len
 
         target[cur_len:] = IGNORE_INDEX
-        print(f"Accumulated length for conversation {idx}: {cur_len}")
+        #print(f"Accumulated length for conversation {idx}: {cur_len}")
 
         if cur_len < tokenizer.model_max_length:
             if cur_len != total_len:
@@ -745,11 +738,6 @@ def preprocess_plain(
         tokenized_len = len(tokenizer_image_token(source[0]['value'], tokenizer))
         target[:tokenized_len] = IGNORE_INDEX
 
-    print(f"-------------------------------------\n"
-          f"INPUT IDS ARE {input_ids}\n"
-          f"TARGET IS {targets}\n"
-          f"-------------------------------------\n")
-
     return dict(input_ids=input_ids, labels=targets)
 
 
@@ -766,16 +754,16 @@ def preprocess(
     4. Make a deepcopy as the target. Mask human words with IGNORE_INDEX.
     """
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.PLAIN:
-        print("PLAIN STYLE")
+        #print("PLAIN STYLE")
         return preprocess_plain(sources, tokenizer)
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.LLAMA_2:
-        print("LLAMA 2 STYLE")
+        #print("LLAMA 2 STYLE")
         return preprocess_llama_2(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.LLAMA_3:
-        print("LLAMA 3 STYLE")
+        #print("LLAMA 3 STYLE")
         return preprocess_llama_3(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version.startswith("v1"):
-        print("V1 STYLE")
+        #print("V1 STYLE")
         return preprocess_v1(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version == "mpt":
         return preprocess_mpt(sources, tokenizer, has_image=has_image)
@@ -1071,9 +1059,9 @@ def train(attn_implementation=None):
             )
         else:
             tokenizer.pad_token = None
-            print('PAD compatibility')
+            #print('PAD compatibility')
             tokenizer.pad_token_id = 128002
-            print('New PAD token id and using llama3 template: ', tokenizer.pad_token)
+            #print('New PAD token id and using llama3 template: ', tokenizer.pad_token)
             conversation_lib.default_conversation = conversation_lib.conv_templates['llama_3']
 
     elif model_args.version == "v0.5":
