@@ -122,6 +122,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
 
     elif 'pretrain' in model_name:
         print('loading adapter')
+        from llava.model.language_model.llava_llama import LlavaConfig
         tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
         cfg_pretrained = LlavaConfig.from_pretrained(model_path)
         model = LlavaLlamaForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
