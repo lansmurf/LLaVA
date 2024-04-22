@@ -109,7 +109,6 @@ class Conversation:
                     ret += " " + message
 
             ret += self.sep2  # Apply _EOS_ only at the end
-            ret = ret.lstrip(self.sep)
 
         elif self.sep_style == SeparatorStyle.PLAIN:
             seps = [self.sep, self.sep2]
