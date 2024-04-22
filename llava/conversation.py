@@ -95,18 +95,20 @@ class Conversation:
 
         elif self.sep_style == SeparatorStyle.LLAMA_3:
             print('llama3 conv type')
-            wrap_sys = lambda msg: f"<|start_header_id|>system<|end_of_header|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
-            wrap_inst = lambda msg: f"<|start_header_id|>user<|end_of_header|>\n\n{msg}<|eot_id|>"
+            wrap_sys = lambda msg: f"<|start_header_id|>system<|end_header_id|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
+            wrap_user = lambda msg: f"<|start_header_id|>user<|end_header_id|>\n\n{msg}<|eot_id|>"
+            wrap_assistant = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n{msg}<|eot_id|>"
             ret = self.sep + wrap_sys(self.system)  # Apply _BOS_ only at the start
 
             for i, (role, message) in enumerate(messages):
                 if type(message) is tuple:
                     message, _, _ = message
                 if i % 2 == 0:
-                    message = wrap_inst(message)
+                    message = wrap_user(message)
                     ret += message
                 else:
-                    ret += " " + message
+                    message = wrap_assistant(message)
+                    ret += message
 
             ret += self.sep2  # Apply _EOS_ only at the end
 
