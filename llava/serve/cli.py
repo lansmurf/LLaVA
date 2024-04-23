@@ -110,15 +110,23 @@ def main(args):
         streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
 
         with torch.inference_mode():
+            model_kwargs = {
+                'do_sample': True if args.temperature > 0 else False,
+                'temperature': args.temperature,
+                'max_new_tokens': args.max_new_tokens,
+                'streamer': streamer,
+                'use_cache': True
+            }
+
+            # Add 'images' and 'image_sizes' only if image_size is not None
+            if image_size is not None:
+                model_kwargs['images'] = image_tensor
+                model_kwargs['image_sizes'] = [image_size]
+
             output_ids = model.generate(
                 input_ids,
-                images=image_tensor,
-                image_sizes=[image_size],
-                do_sample=True if args.temperature > 0 else False,
-                temperature=args.temperature,
-                max_new_tokens=args.max_new_tokens,
-                streamer=streamer,
-                use_cache=True)
+                **model_kwargs
+            )
 
         outputs = tokenizer.decode(output_ids[0]).strip()
         conv.messages[-1][-1] = outputs
