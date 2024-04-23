@@ -505,14 +505,13 @@ def preprocess_llama_3(
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
 
         rounds = split_into_rounds(conversation)
-        cur_len = 1
+        cur_len = 0
         target[:cur_len] = IGNORE_INDEX
         for i, rou in enumerate(rounds):
             if rou == "":
                 break
 
             parts = split_into_rounds(rou, '<|end_header_id|>\n\n')  # This splits rou at the last occurrence of sep
-
             if len(parts) != 2:
                 print('PARTS NOT 2')
                 break
