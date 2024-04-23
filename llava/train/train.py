@@ -738,6 +738,10 @@ def preprocess_plain(
         tokenized_len = len(tokenizer_image_token(source[0]['value'], tokenizer))
         target[:tokenized_len] = IGNORE_INDEX
 
+    print(f'INPUT IDS: {input_ids.shape}, {targets.shape}'
+          f'IDS: {input_ids}'
+          f'TGTS {targets}')
+
     return dict(input_ids=input_ids, labels=targets)
 
 
@@ -754,7 +758,7 @@ def preprocess(
     4. Make a deepcopy as the target. Mask human words with IGNORE_INDEX.
     """
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.PLAIN:
-        print("PLAIN STYLE")
+        #print("PLAIN STYLE")
         return preprocess_plain(sources, tokenizer)
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.LLAMA_2:
         print("LLAMA 2 STYLE")
