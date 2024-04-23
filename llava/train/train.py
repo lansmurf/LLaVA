@@ -549,6 +549,7 @@ def preprocess_llama_3(
           f"INSTRUCTION LEN IS {instruction_len}\n"
           f"ROUND LEN IS {round_len}\n"
           f"CUR LEN IS {cur_len}\n"
+          f"TOTAL LEN IS {total_len}"
           f"-------------------------------------\n")
 
     return dict(
