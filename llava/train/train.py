@@ -505,7 +505,7 @@ def preprocess_llama_3(
         total_len = int(target.ne(tokenizer.pad_token_id).sum())
 
         rounds = split_into_rounds(conversation)
-        cur_len = 0
+        cur_len = 2
         target[:cur_len] = IGNORE_INDEX
         for i, rou in enumerate(rounds):
             if rou == "":
@@ -528,14 +528,6 @@ def preprocess_llama_3(
             cur_len += round_len
 
         target[cur_len:] = IGNORE_INDEX
-
-        if cur_len < tokenizer.model_max_length:
-            if cur_len != total_len:
-                target[:] = IGNORE_INDEX
-                print(
-                    f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
-                    f" (ignored)"
-                )
 
     print(f"-------------------------------------\n"
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
