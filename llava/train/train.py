@@ -1129,10 +1129,19 @@ def train(attn_implementation=None):
 
     data_module = make_supervised_data_module(tokenizer=tokenizer,
                                               data_args=data_args)
+
     trainer = LLaVATrainer(model=model,
                     tokenizer=tokenizer,
                     args=training_args,
                     **data_module)
+
+    if trainer.train_dataset is not None:
+        # Randomly select an index
+        index = random.randint(0, len(trainer.train_dataset) - 1)
+        # Retrieve the dataset item at the chosen index
+        sample = trainer.train_dataset[index]
+        print('TRAIN SAMPLE')
+        print(sample)
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
