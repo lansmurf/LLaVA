@@ -122,11 +122,17 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
 
     elif 'pretrain' in model_name:
         print('loading adapter')
-        from llava.model.language_model.llava_llama import LlavaConfig
-        tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
-        cfg_pretrained = LlavaConfig.from_pretrained(model_path)
-        model = LlavaLlamaForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
-                                                        **kwargs)
+        if 'mistral' in model_base.lower():
+            tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
+            cfg_pretrained = LlavaMistralConfig.from_pretrained(model_path)
+            model = LlavaMistralForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
+                                                          **kwargs)
+        else:
+            from llava.model.language_model.llava_llama import LlavaConfig
+            tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=True)
+            cfg_pretrained = LlavaConfig.from_pretrained(model_path)
+            model = LlavaLlamaForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
+                                                            **kwargs)
         mm_projector_weights = torch.load(os.path.join(model_path, 'mm_projector.bin'), map_location='cpu')
         mm_projector_weights = {k: v.to(torch.float16) for k, v in mm_projector_weights.items()}
         model.load_state_dict(mm_projector_weights, strict=False)
