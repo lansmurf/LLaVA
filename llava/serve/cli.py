@@ -83,7 +83,7 @@ def main(args):
 
         print(f"{roles[1]}: ", end="")
 
-        if image is not None:
+        if image is not None and image_processor is not None:
             # first message
             if model.config.mm_use_im_start_end:
                 inp = DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_TOKEN + DEFAULT_IM_END_TOKEN + '\n' + inp
