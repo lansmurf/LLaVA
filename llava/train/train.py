@@ -1043,6 +1043,7 @@ def train(attn_implementation=None):
         )
 
     if model_args.version == "v0":
+        print('MISTRAL IN HERE')
         if tokenizer.pad_token is None:
             smart_tokenizer_and_embedding_resize(
                 special_tokens_dict=dict(pad_token="[PAD]"),
