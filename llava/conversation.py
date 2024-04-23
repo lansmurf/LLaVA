@@ -97,6 +97,7 @@ class Conversation:
             wrap_sys = lambda msg: f"<|start_header_id|>system<|end_header_id|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
             wrap_user = lambda msg: f"<|start_header_id|>user<|end_header_id|>\n\n{msg}<|eot_id|>"
             wrap_assistant = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n{msg}<|eot_id|>"
+            wrap_assistant_completion = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n"
             ret = self.sep + wrap_sys(self.system)  # Apply _BOS_ only at the start
 
             for i, (role, message) in enumerate(messages):
@@ -106,8 +107,12 @@ class Conversation:
                     message = wrap_user(message)
                     ret += message
                 else:
-                    message = wrap_assistant(message)
-                    ret += message
+                    if message:
+                        message = wrap_assistant(message)
+                        ret += message
+                    else:
+                        message = wrap_assistant_completion(message)
+                        ret += message
 
             print(ret)
 
