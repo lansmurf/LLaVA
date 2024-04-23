@@ -99,7 +99,7 @@ def main(args):
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
 
-        if image_tensor:
+        if image_tensor is not None:
             input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).to(model.device)
         else:
             tokenized_text = tokenizer(prompt, return_tensors='pt').to(model.device)
