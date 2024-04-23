@@ -62,7 +62,11 @@ def main(args):
     image = load_image(args.image_file)
     image_size = image.size
     # Similar operation in model_worker.py
-    image_tensor = process_images([image], image_processor, model.config)
+    if image_processor:
+        image_tensor = process_images([image], image_processor, model.config)
+    else:
+        image_tensor = None
+
     if type(image_tensor) is list:
         image_tensor = [image.to(model.device, dtype=torch.float16) for image in image_tensor]
     else:
@@ -91,7 +95,11 @@ def main(args):
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
 
-        input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).to(model.device)
+        if image_tensor:
+            input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).to(model.device)
+        else:
+            input_ids = tokenizer(prompt, return_tensors=True).unsqueeze(0).to(model.device)
+
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
         keywords = [stop_str]
         streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
