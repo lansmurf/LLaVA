@@ -44,7 +44,7 @@ local_rank = None
 
 def rank0_print(*args):
     if local_rank == 0:
-        rank0_print(*args)
+        print(*args)
 
 
 from packaging import version
