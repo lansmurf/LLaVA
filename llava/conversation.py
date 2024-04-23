@@ -415,8 +415,8 @@ conv_llama_3 = Conversation(
     messages=(),
     offset=0,
     sep_style=SeparatorStyle.LLAMA_3,  # Updated to the new separator style for version 3
-    sep="<|begin_of_text|>",  # New separator token for beginning new messages
-    sep2="<|end_of_text|>",  # New separator token for closing messages or separating parts within messages
+    sep="",  # New separator token for beginning new messages
+    sep2="",  # New separator token for closing messages or separating parts within messages
 )
 
 conv_llava_llama_3 = Conversation(
@@ -426,8 +426,8 @@ conv_llava_llama_3 = Conversation(
     messages=(),
     offset=0,
     sep_style=SeparatorStyle.LLAMA_3,  # Updated to the new separator style for version 3
-    sep="<|begin_of_text|>",  # New separator token for beginning new messages
-    sep2="<|end_of_text|>",  # New separator token for closing messages or separating parts within messages
+    sep="",  # New separator token for beginning new messages
+    sep2="",  # New separator token for closing messages or separating parts within messages
 )
 
 default_conversation = conv_vicuna_v1
