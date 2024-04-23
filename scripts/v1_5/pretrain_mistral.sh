@@ -1,9 +1,9 @@
 #!/bin/bash
 
 deepspeed llava/train/train_mem.py \
-    --deepspeed ./scripts/zero2.json \
+    --deepspeed ./scripts/zero3.json \
     --model_name_or_path mistral-community/Mistral-7B-v0.2 \
-    --version plain \
+    --version mistral_instruct \
     --data_path /home/nicolas.joniaux/Desktop/llava/chat.json \
     --image_folder /home/nicolas.joniaux/Desktop/llava \
     --vision_tower google/siglip-so400m-patch14-384 \
