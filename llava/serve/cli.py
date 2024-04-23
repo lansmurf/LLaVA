@@ -45,8 +45,8 @@ def main(args):
     elif "mpt" in model_name.lower():
         conv_mode = "mpt"
     else:
-        print('Default conversation style..')
-        conv_mode = "llava_llama_3"
+        print('Default conversation style.. llava_v0')
+        conv_mode = "llava_v0"
 
     if args.conv_mode is not None and conv_mode != args.conv_mode:
         print('[WARNING] the auto inferred conversation mode is {}, while `--conv-mode` is {}, using {}'.format(conv_mode, args.conv_mode, args.conv_mode))
