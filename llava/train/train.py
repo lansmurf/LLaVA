@@ -406,6 +406,19 @@ def preprocess_llama_2(
                     f" (ignored)"
                 )
 
+        print(f"-------------------------------------\n"
+              f"INPUT_IDS_SHAPE {input_ids.shape}\n"
+              f"TARGETS SHAPE {targets.shape}\n"
+              f"INPUT IDS ARE {input_ids}\n"
+              f"TARGET IS {targets}\n"
+              f"CONVERSATION IS {conversations}\n"
+              f"ROUND IS {rounds}\n"
+              f"PARTS ARE {parts}\n"
+              f"INSTRUCTION LEN IS {instruction_len}\n"
+              f"ROUND LEN IS {round_len}\n"
+              f"CUR LEN IS {cur_len}\n"
+              f"-------------------------------------\n")
+
     return dict(
         input_ids=input_ids,
         labels=targets,
