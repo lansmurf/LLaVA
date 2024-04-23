@@ -98,7 +98,7 @@ class Conversation:
             wrap_user = lambda msg: f"<|start_header_id|>user<|end_header_id|>\n\n{msg}<|eot_id|>"
             wrap_assistant = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n{msg}<|eot_id|>"
             wrap_assistant_completion = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n"
-            ret = self.sep + wrap_sys(self.system)  # Apply _BOS_ only at the start
+            ret = wrap_sys(self.system)  # Apply _BOS_ only at the start
 
             for i, (role, message) in enumerate(messages):
                 if type(message) is tuple:
