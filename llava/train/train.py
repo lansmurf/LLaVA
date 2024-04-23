@@ -1035,6 +1035,7 @@ def train(attn_implementation=None):
         )
     else:
         print('init default tokenizer')
+        print('model arg version: ', model_args.version)
         tokenizer = transformers.AutoTokenizer.from_pretrained(
             model_args.model_name_or_path,
             cache_dir=training_args.cache_dir,
@@ -1076,8 +1077,6 @@ def train(attn_implementation=None):
             conversation_lib.default_conversation = conversation_lib.conv_templates['llama_3']
         else:
             conversation_lib.default_conversation = conversation_lib.conv_templates["vicuna_v1"]
-
-    print('model arg version: ', model_args.version)
 
     if model_args.vision_tower is not None:
         model.get_model().initialize_vision_modules(
