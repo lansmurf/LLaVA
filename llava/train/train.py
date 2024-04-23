@@ -42,9 +42,9 @@ from PIL import Image
 local_rank = None
 
 
-def rank0_print(*args):
+def rank0_rank0_print(*args):
     if local_rank == 0:
-        print(*args)
+        rank0_print(*args)
 
 
 from packaging import version
@@ -402,12 +402,12 @@ def preprocess_llama_2(
         if cur_len < tokenizer.model_max_length:
             if cur_len != total_len:
                 target[:] = IGNORE_INDEX
-                print(
+                rank0_print(
                     f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
                     f" (ignored)"
                 )
 
-        print(f"-------------------------------------\n"
+        rank0_print(f"-------------------------------------\n"
               f"INPUT_IDS_SHAPE {input_ids.shape}\n"
               f"TARGETS SHAPE {targets.shape}\n"
               f"INPUT IDS ARE {input_ids}\n"
@@ -514,7 +514,7 @@ def preprocess_llama_3(
 
             parts = split_into_rounds(rou, '<|end_header_id|>\n\n')  # This splits rou at the last occurrence of sep
             if len(parts) != 2:
-                print('PARTS NOT 2')
+                rank0_print('PARTS NOT 2')
                 break
 
             if has_image:
@@ -530,7 +530,7 @@ def preprocess_llama_3(
 
         target[cur_len:] = IGNORE_INDEX
 
-    '''print(f"-------------------------------------\n"
+    '''rank0_print(f"-------------------------------------\n"
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
           f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
@@ -616,18 +616,18 @@ def preprocess_v1(
                 round_len -= 1
                 instruction_len -= 1
 
-            #print(f"Round {i} token lengths - Round: {round_len}, Instruction: {instruction_len}")
+            #rank0_print(f"Round {i} token lengths - Round: {round_len}, Instruction: {instruction_len}")
 
             target[cur_len: cur_len + instruction_len] = IGNORE_INDEX
             cur_len += round_len
 
         target[cur_len:] = IGNORE_INDEX
-        #print(f"Accumulated length for conversation {idx}: {cur_len}")
+        #rank0_print(f"Accumulated length for conversation {idx}: {cur_len}")
 
         if cur_len < tokenizer.model_max_length:
             if cur_len != total_len:
                 target[:] = IGNORE_INDEX
-                print(
+                rank0_print(
                     f"WARNING: tokenization mismatch in conversation {idx}: {cur_len} vs. {total_len}. (ignored)"
                 )
 
@@ -714,7 +714,7 @@ def preprocess_mpt(
         if cur_len < tokenizer.model_max_length:
             if cur_len != total_len:
                 target[:] = IGNORE_INDEX
-                print(
+                rank0_print(
                     f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
                     f" (ignored)"
                 )
@@ -744,7 +744,7 @@ def preprocess_plain(
         tokenized_len = len(tokenizer_image_token(source[0]['value'], tokenizer))
         target[:tokenized_len] = IGNORE_INDEX
 
-    '''print(f'---------------\n'
+    '''rank0_print(f'---------------\n'
           f'IDS: {input_ids}\n'
           f'TGTS {targets}\n'
           f'---------------')'''
@@ -765,16 +765,16 @@ def preprocess(
     4. Make a deepcopy as the target. Mask human words with IGNORE_INDEX.
     """
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.PLAIN:
-        #print("PLAIN STYLE")
+        #rank0_print("PLAIN STYLE")
         return preprocess_plain(sources, tokenizer)
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.LLAMA_2:
-        print("LLAMA 2 STYLE")
+        rank0_print("LLAMA 2 STYLE")
         return preprocess_llama_2(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.LLAMA_3:
-        #print("LLAMA 3 STYLE")
+        #rank0_print("LLAMA 3 STYLE")
         return preprocess_llama_3(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version.startswith("v1"):
-        print("V1 STYLE")
+        rank0_print("V1 STYLE")
         return preprocess_v1(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version == "mpt":
         return preprocess_mpt(sources, tokenizer, has_image=has_image)
@@ -815,7 +815,7 @@ class LazySupervisedDataset(Dataset):
         super(LazySupervisedDataset, self).__init__()
         list_data_dict = json.load(open(data_path, "r"))
 
-        rank0_print("Formatting inputs...Skip in lazy mode")
+        rank0_rank0_print("Formatting inputs...Skip in lazy mode")
         self.tokenizer = tokenizer
         self.list_data_dict = list_data_dict
         self.data_args = data_args
@@ -906,6 +906,10 @@ class DataCollatorForSupervisedDataset(object):
         labels = torch.nn.utils.rnn.pad_sequence(labels,
                                                  batch_first=True,
                                                  padding_value=IGNORE_INDEX)
+
+        rank0_print(f'input ids PADDED: {input_ids}\n'
+                    f'labels PADDED: {labels}\n')
+
         input_ids = input_ids[:, :self.tokenizer.model_max_length]
         labels = labels[:, :self.tokenizer.model_max_length]
         batch = dict(
@@ -975,7 +979,7 @@ def train(attn_implementation=None):
                 **bnb_model_from_pretrained_args
             )
         else:
-            print('here')
+            rank0_print('here')
             #switch here
             if 'llama' in model_args.model_name_or_path.lower():
                 model = LlavaLlamaForCausalLM.from_pretrained(
@@ -1034,7 +1038,7 @@ def train(attn_implementation=None):
                 model.to(torch.bfloat16)
             if training_args.fp16:
                 model.to(torch.float16)
-        rank0_print("Adding LoRA adapters...")
+        rank0_rank0_print("Adding LoRA adapters...")
         model = get_peft_model(model, lora_config)
 
     if 'mpt' in model_args.model_name_or_path:
@@ -1045,8 +1049,8 @@ def train(attn_implementation=None):
             padding_side="right"
         )
     else:
-        print('init default tokenizer')
-        print('model arg version: ', model_args.version)
+        rank0_print('init default tokenizer')
+        rank0_print('model arg version: ', model_args.version)
         tokenizer = transformers.AutoTokenizer.from_pretrained(
             model_args.model_name_or_path,
             cache_dir=training_args.cache_dir,
@@ -1066,14 +1070,14 @@ def train(attn_implementation=None):
     elif model_args.version == "v0.5":
         tokenizer.pad_token = tokenizer.unk_token
     else:
-        print('UNK TOKEN: ', tokenizer.unk_token)
+        rank0_print('UNK TOKEN: ', tokenizer.unk_token)
         if tokenizer.unk_token:
             tokenizer.pad_token = tokenizer.unk_token
         else:
             tokenizer.pad_token_id = 128002
             tokenizer.eos_token_id = 128009
-            print('PAD TOKEN: ', tokenizer.pad_token)
-            print('EOS TOKEN: ', tokenizer.eos_token_id)
+            rank0_print('PAD TOKEN: ', tokenizer.pad_token)
+            rank0_print('EOS TOKEN: ', tokenizer.eos_token_id)
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
         else:
@@ -1135,14 +1139,6 @@ def train(attn_implementation=None):
                     tokenizer=tokenizer,
                     args=training_args,
                     **data_module)
-
-    if trainer.train_dataset is not None:
-        # Randomly select an index
-        index = random.randint(0, len(trainer.train_dataset) - 1)
-        # Retrieve the dataset item at the chosen index
-        sample = trainer.train_dataset[index]
-        print('TRAIN SAMPLE')
-        print(sample)
 
     if list(pathlib.Path(training_args.output_dir).glob("checkpoint-*")):
         trainer.train(resume_from_checkpoint=True)
