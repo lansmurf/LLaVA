@@ -104,8 +104,8 @@ def main(args):
         else:
             tokenized_text = tokenizer(prompt, return_tensors='pt').to(model.device)
             input_ids = tokenized_text['input_ids']
-            #print("input ids", input_ids)
-            #print('input_ids shape: ', input_ids.shape)
+            print("input ids", input_ids)
+            print('input_ids shape: ', input_ids.shape)
 
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
         keywords = [stop_str]
