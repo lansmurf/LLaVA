@@ -907,8 +907,8 @@ class DataCollatorForSupervisedDataset(object):
                                                  batch_first=True,
                                                  padding_value=IGNORE_INDEX)
 
-        rank0_print(f'input ids PADDED: {input_ids}\n'
-                    f'labels PADDED: {labels}\n')
+        rank0_print(f'input ids PADDED (first element): {input_ids[0]}\n'
+                    f'labels PADDED (first element): {labels[0]}\n')
 
         input_ids = input_ids[:, :self.tokenizer.model_max_length]
         labels = labels[:, :self.tokenizer.model_max_length]
