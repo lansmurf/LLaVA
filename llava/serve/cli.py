@@ -101,7 +101,7 @@ def main(args):
         if image_tensor:
             input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).to(model.device)
         else:
-            input_ids = tokenizer(prompt, return_tensors=True).unsqueeze(0).to(model.device)
+            input_ids = tokenizer(prompt, return_tensors='pt').unsqueeze(0).to(model.device)
             print("input ids", input_ids)
 
         stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
