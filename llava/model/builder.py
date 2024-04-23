@@ -124,7 +124,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
         print('loading adapter')
         if 'mistral' in model_base.lower():
             tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
-            cfg_pretrained = LlavaMistralConfig.from_pretrained(model_path)
+            cfg_pretrained = LlavaMistralConfig.from_pretrained('./checkpoints/pretrain/')
             model = LlavaMistralForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
                                                           **kwargs)
         else:
