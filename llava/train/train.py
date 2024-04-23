@@ -465,7 +465,7 @@ def preprocess_llama_3(
 
     # Mask targets
 
-    #<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible.<|eot_id|>
+    # <|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nYou are a helpful, respectful and honest assistant. Always answer as helpfully as possible.<|eot_id|>
     # <|start_header_id|>user<|end_header_id|>\n\n<image>\nSummarize the visual content of the image.<|eot_id|>
     # <|start_header_id|>assistant<|end_header_id|>\n\n\n goldfish in front of a white background<|eot_id|><|end_of_text|>
 
@@ -531,14 +531,14 @@ def preprocess_llama_3(
         target[cur_len:] = IGNORE_INDEX
 
         if cur_len < tokenizer.model_max_length:
-            if cur_len < total_len:
+            if cur_len != total_len:
                 target[:] = IGNORE_INDEX
                 print(
                     f"WARNING: tokenization mismatch: {cur_len} vs. {total_len}."
                     f" (ignored)"
                 )
 
-    '''print(f"-------------------------------------\n"
+    print(f"-------------------------------------\n"
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
           f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
@@ -549,7 +549,7 @@ def preprocess_llama_3(
           f"INSTRUCTION LEN IS {instruction_len}\n"
           f"ROUND LEN IS {round_len}\n"
           f"CUR LEN IS {cur_len}\n"
-          f"-------------------------------------\n")'''
+          f"-------------------------------------\n")
 
     return dict(
         input_ids=input_ids,
@@ -778,7 +778,7 @@ def preprocess(
         print("LLAMA 2 STYLE")
         return preprocess_llama_2(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.sep_style == conversation_lib.SeparatorStyle.LLAMA_3:
-        print("LLAMA 3 STYLE")
+        #print("LLAMA 3 STYLE")
         return preprocess_llama_3(sources, tokenizer, has_image=has_image)
     if conversation_lib.default_conversation.version.startswith("v1"):
         print("V1 STYLE")
@@ -1077,7 +1077,7 @@ def train(attn_implementation=None):
         if tokenizer.unk_token:
             tokenizer.pad_token = tokenizer.unk_token
         else:
-            tokenizer.pad_token = '<|reserved_special_token_0|>'
+            tokenizer.pad_token_id = 128002
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
         else:

@@ -94,6 +94,18 @@ class Conversation:
             ret = ret.lstrip(self.sep)
 
         elif self.sep_style == SeparatorStyle.LLAMA_3:
+
+            """
+
+            {{ if .System }}<|start_header_id|>system<|end_header_id|>
+
+            {{ .System }}<|eot_id|>{{ end }}{{ if .Prompt }}<|start_header_id|>user<|end_header_id|>
+
+            {{ .Prompt }}<|eot_id|>{{ end }}<|start_header_id|>assistant<|end_header_id|>
+
+            {{ .Response }}<|eot_id|>
+
+            """
             wrap_sys = lambda msg: f"<|start_header_id|>system<|end_header_id|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
             wrap_user = lambda msg: f"<|start_header_id|>user<|end_header_id|>\n\n{msg}<|eot_id|>"
             wrap_assistant = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n{msg}<|eot_id|>"
@@ -114,7 +126,7 @@ class Conversation:
                         message = wrap_assistant_completion(message)
                         ret += message
 
-            print(ret)
+            #print(ret)
 
             #ret += self.sep2  # Apply _EOS_ only at the end
 

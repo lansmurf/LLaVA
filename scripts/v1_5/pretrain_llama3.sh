@@ -3,7 +3,7 @@
 deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero3.json \
     --model_name_or_path unsloth/llama-3-8b-Instruct \
-    --version plain \
+    --version llama_3 \
     --data_path /home/nicolas.joniaux/Desktop/llava/chat.json \
     --image_folder /home/nicolas.joniaux/Desktop/llava \
     --vision_tower google/siglip-so400m-patch14-384 \
