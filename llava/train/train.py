@@ -738,8 +738,7 @@ def preprocess_plain(
         tokenized_len = len(tokenizer_image_token(source[0]['value'], tokenizer))
         target[:tokenized_len] = IGNORE_INDEX
 
-    print(f'INPUT IDS: {input_ids.shape}, {targets.shape}'
-          f'IDS: {input_ids}'
+    print(f'IDS: {input_ids}'
           f'TGTS {targets}')
 
     return dict(input_ids=input_ids, labels=targets)
