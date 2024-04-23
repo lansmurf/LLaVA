@@ -20,8 +20,8 @@ deepspeed llava/train/train_mem.py \
     --gradient_accumulation_steps 5 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
-    --save_total_limit 1 \
+    --save_steps 100 \
+    --save_total_limit 10 \
     --learning_rate 1e-3 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
