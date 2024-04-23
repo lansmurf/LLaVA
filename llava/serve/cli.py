@@ -64,6 +64,7 @@ def main(args):
         image_size = image.size
     else:
         image = None
+        image_size = None
     # Similar operation in model_worker.py
     if image_processor:
         image_tensor = process_images([image], image_processor, model.config)
