@@ -32,6 +32,7 @@ def main(args):
     tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, args.load_8bit, args.load_4bit, device=args.device)
 
     if "llama-3" in model_name.lower():
+        print('llama 3 model!')
         conv_mode = "llava_llama_3"
     elif "llama-2" in model_name.lower():
         conv_mode = "llava_llama_2"
@@ -44,7 +45,8 @@ def main(args):
     elif "mpt" in model_name.lower():
         conv_mode = "mpt"
     else:
-        conv_mode = "llava_v0"
+        print('Default conversation style..')
+        conv_mode = "llava_llama_3"
 
     if args.conv_mode is not None and conv_mode != args.conv_mode:
         print('[WARNING] the auto inferred conversation mode is {}, while `--conv-mode` is {}, using {}'.format(conv_mode, args.conv_mode, args.conv_mode))
