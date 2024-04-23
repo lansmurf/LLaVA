@@ -1045,36 +1045,23 @@ def train(attn_implementation=None):
         )
 
     if model_args.version == "v0":
-        print('MISTRAL IN HERE')
         if tokenizer.pad_token is None:
             smart_tokenizer_and_embedding_resize(
                 special_tokens_dict=dict(pad_token="[PAD]"),
                 tokenizer=tokenizer,
                 model=model,
             )
-
-    elif "llama-3" in model_args.model_name_or_path:
-        if tokenizer.pad_token is None:
-            smart_tokenizer_and_embedding_resize(
-                special_tokens_dict=dict(pad_token="[PAD]"),
-                tokenizer=tokenizer,
-                model=model,
-            )
-        else:
-            tokenizer.pad_token = None
-            #print('PAD compatibility')
-            tokenizer.pad_token_id = 128002
-            #print('New PAD token id and using llama3 template: ', tokenizer.pad_token)
-            conversation_lib.default_conversation = conversation_lib.conv_templates['llama_3']
 
     elif model_args.version == "v0.5":
         tokenizer.pad_token = tokenizer.unk_token
     else:
-        tokenizer.pad_token = tokenizer.unk_token
+        print('UNK TOKEN: ', tokenizer.unk_token)
+        if tokenizer.unk_token:
+            tokenizer.pad_token = tokenizer.unk_token
+        else:
+            tokenizer.pad_token = '<|reserved_special_token_0|>'
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
-        elif 'llama-3' in  model_args.model_name_or_path:
-            conversation_lib.default_conversation = conversation_lib.conv_templates['llama_3']
         else:
             conversation_lib.default_conversation = conversation_lib.conv_templates["vicuna_v1"]
 
