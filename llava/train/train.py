@@ -1076,7 +1076,7 @@ def train(attn_implementation=None):
         else:
             conversation_lib.default_conversation = conversation_lib.conv_templates["vicuna_v1"]
 
-        print('model arg version: ', model_args.version)
+    print('model arg version: ', model_args.version)
 
     if model_args.vision_tower is not None:
         model.get_model().initialize_vision_modules(
