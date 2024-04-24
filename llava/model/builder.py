@@ -120,7 +120,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                     **kwargs
                 )
 
-    elif 'pretrain' in model_name:
+    elif 'checkpoints' in model_name:
         print('loading adapter')
         if 'mistral' in model_base.lower():
             tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
