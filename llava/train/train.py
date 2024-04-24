@@ -1074,10 +1074,15 @@ def train(attn_implementation=None):
         if tokenizer.unk_token:
             tokenizer.pad_token = tokenizer.unk_token
         else:
-            tokenizer.pad_token_id = 128002
-            tokenizer.eos_token_id = 128009
-            rank0_print('PAD TOKEN: ', tokenizer.pad_token)
-            rank0_print('EOS TOKEN: ', tokenizer.eos_token_id)
+            if 'instruct' in model_args.model_name_or_path:
+                tokenizer.pad_token_id = 128002
+                tokenizer.eos_token_id = 128009
+                rank0_print('PAD TOKEN: ', tokenizer.pad_token)
+                rank0_print('EOS TOKEN: ', tokenizer.eos_token_id)
+            else:
+                tokenizer.pad_token_id = 128002
+                rank0_print('PAD TOKEN: ', tokenizer.pad_token)
+                rank0_print('EOS TOKEN: ', tokenizer.eos_token)
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
         else:
