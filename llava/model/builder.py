@@ -120,28 +120,29 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                     **kwargs
                 )
 
-    elif 'checkpoints' in model_name:
-        print('loading adapter')
-        if 'mistral' in model_base.lower():
-            tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
-            cfg_pretrained = LlavaMistralConfig.from_pretrained('./checkpoints/pretrain/')
-            model = LlavaMistralForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
-                                                          **kwargs)
-        else:
-            from llava.model.language_model.llava_llama import LlavaConfig
-            tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=True)
-            cfg_pretrained = LlavaConfig.from_pretrained(model_path)
-            model = LlavaLlamaForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
-                                                            **kwargs)
-        mm_projector_weights = torch.load(os.path.join(model_path, 'mm_projector.bin'), map_location='cpu')
-        mm_projector_weights = {k: v.to(torch.float16) for k, v in mm_projector_weights.items()}
-        model.load_state_dict(mm_projector_weights, strict=False)
-
     else:
         # Load language model
         if model_base is not None:
+            print('loading adapter')
+            if 'mistral' in model_base.lower():
+                tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
+                cfg_pretrained = LlavaMistralConfig.from_pretrained('./checkpoints/pretrain/')
+                model = LlavaMistralForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True,
+                                                                config=cfg_pretrained,
+                                                                **kwargs)
+            else:
+                from llava.model.language_model.llava_llama import LlavaConfig
+                tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=True)
+                cfg_pretrained = LlavaConfig.from_pretrained(model_path)
+                model = LlavaLlamaForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, config=cfg_pretrained,
+                                                              **kwargs)
+            mm_projector_weights = torch.load(os.path.join(model_path, 'mm_projector.bin'), map_location='cpu')
+            mm_projector_weights = {k: v.to(torch.float16) for k, v in mm_projector_weights.items()}
+            model.load_state_dict(mm_projector_weights, strict=False)
+
+
             # PEFT model
-            from peft import PeftModel
+            '''from peft import PeftModel
             tokenizer = AutoTokenizer.from_pretrained(model_base, use_fast=False)
             model = AutoModelForCausalLM.from_pretrained(model_base, low_cpu_mem_usage=True, **kwargs)
             print(f"Loading LoRA weights from {model_path}")
@@ -149,7 +150,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
             print(f"Merging weights")
             model = model.merge_and_unload()
             print('Convert to FP16...')
-            model.to(torch.float16)
+            model.to(torch.float16)'''
 
         else:
             use_fast = False
