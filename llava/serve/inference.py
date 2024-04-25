@@ -126,9 +126,12 @@ def answer_question(
 
     with torch.no_grad():
         image_inputs = processor(images=image, return_tensors="pt").to("cuda")
-        outputs = vision_model(**image_inputs.half())
-        last_hidden_state = outputs.last_hidden_state
-        image_features = last_hidden_state[:, 1:]
+
+        image_forward_outs = vision_model(image_inputs.to(device='cuda', dtype=torch.float16),
+                                               output_hidden_states=True)
+        image_features = image_forward_outs[:, 1:]
+
+        print('image forward out: ', image_forward_outs.shape)
 
         print('IMAGE FEATURES SHAPE BEFORE PROJ: ', image_features.shape)
 
