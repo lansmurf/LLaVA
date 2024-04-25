@@ -121,13 +121,8 @@ def answer_question(
 
     prompt = f"<|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
-    print('QUESTION IS: ', prompt)
-
     input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
         model.device)
-
-    print('INPUT IDS SHAPE: ', input_ids.shape)
-    print('INPUT IDS SHAPE: ', input_ids)
 
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
 
@@ -137,22 +132,14 @@ def answer_question(
 
         image_inputs = image_inputs['pixel_values'].squeeze(0)
 
-        print('img inputs: ', image_inputs.shape)
-
         image_forward_outs = vision_model(image_inputs.to(device='cuda', dtype=torch.float16).unsqueeze(0),
                                                output_hidden_states=True)
 
         image_features = image_forward_outs.hidden_states[-2]
 
-        print('IMG FORWARD OUT SHAPE: ', image_features)
-
         image_features2 = image_features[:, 1:]
 
-        print('IMAGE FEATURES SHAPE BEFORE PROJ: ', image_features2.shape)
-
         projected_embeddings = projection_module(image_features2).to("cuda")
-
-        print('IMAGE FEATURES SHAPE AFTER PROJ: ', projected_embeddings.shape)
 
         embedding_layer = model.get_input_embeddings()
         #text_embeddings = embedding_layer(input_ids)
@@ -161,11 +148,6 @@ def answer_question(
         device = model.device
         attn_mask = attn_mask.to(device)
         new_embeds = new_embeds.to(device)
-        print('MODEL DEVICE: ', device)
-
-        print('NEW EMBEDS SHAPE: ', new_embeds.shape)
-        print('ATTN MASK SHAPE: ', attn_mask.shape)
-        print("ATTN MASK: ", attn_mask)
 
         model_kwargs = {
             'do_sample': True,
@@ -181,11 +163,6 @@ def answer_question(
             **model_kwargs
 
         )[0]
-        '''response = tokenizer.decode(
-            generated_ids, skip_special_tokens=True, clean_up_tokenization_space=True
-        )
-
-        print(response)'''
 
 
 if __name__ == "__main__":
