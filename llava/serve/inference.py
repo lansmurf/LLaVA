@@ -108,7 +108,7 @@ def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device='cuda')
 
 
 def answer_question(
-        image_path, question, tokenizer, model, vision_model, processor, projection_module
+        image_path, tokenizer, model, vision_model, processor, projection_module
 ):
     image = Image.open(image_path).convert('RGB')
 
@@ -196,7 +196,6 @@ if __name__ == "__main__":
 
     answer_question(
         args.image,
-        'asd',
         tokenizer,
         model,
         vision_model,
