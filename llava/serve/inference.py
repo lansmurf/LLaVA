@@ -112,7 +112,9 @@ def answer_question(
         {"role": "user", "content": question},
     ]
     question = (
-        tokenizer.apply_chat_template(chat, tokenize=False)).to('cuda')
+        tokenizer.apply_chat_template(chat, tokenize=False))
+
+    question = question.to('cuda')
 
     print('QUESTION IS: ', question)
 
