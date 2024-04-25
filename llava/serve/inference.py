@@ -166,7 +166,7 @@ def answer_question(
 
         model_kwargs = {
             'do_sample': True if args.temperature > 0 else False,
-            'temperature': 0.6,
+            'temperature': 0.2,
             'max_new_tokens': 500,
             'use_cache': True
         }
