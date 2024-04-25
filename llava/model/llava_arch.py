@@ -201,7 +201,7 @@ class LlavaMetaForCausalLM(ABC):
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
         else:
             image_features = self.encode_images(images)
-            print('IMAGE FEATURES: ', image_features)
+            #print('IMAGE FEATURES: ', image_features)
             print('IMAGE FEATURES SHAPE: ', image_features.shape)
 
         # TODO: image start / end is not implemented here to support pretraining.
@@ -324,7 +324,7 @@ class LlavaMetaForCausalLM(ABC):
         if _position_ids is None:
             position_ids = None
 
-        print('NEW INPUT EMBEDS: ', new_input_embeds)
+        #print('NEW INPUT EMBEDS: ', new_input_embeds)
         print('NEW INPUT EMBEDS SHAPE: ', new_input_embeds.shape)
 
         return None, position_ids, attention_mask, past_key_values, new_input_embeds, new_labels
