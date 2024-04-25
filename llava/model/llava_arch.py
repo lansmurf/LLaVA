@@ -349,7 +349,7 @@ class LlavaMetaForCausalLM(ABC):
 
             # Create the corrected attention mask
             attention_mask = torch.ones(concatenated_embeddings.shape[:2], dtype=torch.long, device=device)
-            return concatenated_features, attention_mask
+            return concatenated_embeddings, attention_mask
 
         new_input_embeds2, attn_mask = process_tensors(true_input_ids, image_features)
 
