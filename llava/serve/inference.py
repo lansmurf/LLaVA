@@ -1,4 +1,6 @@
 import argparse
+import sys
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -120,7 +122,7 @@ def answer_question(
     except EOFError:
         inp = ""
     if not inp:
-        print("exit...")
+        sys.exit("exiting..")
 
     question = '<image>' + inp
 
