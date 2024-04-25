@@ -171,7 +171,8 @@ def answer_question(
             'do_sample': True,
             'temperature': 0.2,
             'max_new_tokens': 1000,
-            'use_cache': True
+            'use_cache': True,
+            'streamer': streamer
         }
 
         generated_ids = model.generate(
@@ -180,11 +181,11 @@ def answer_question(
             **model_kwargs
 
         )[0]
-        response = tokenizer.decode(
+        '''response = tokenizer.decode(
             generated_ids, skip_special_tokens=True, clean_up_tokenization_space=True
         )
 
-        print(response)
+        print(response)'''
 
 
 if __name__ == "__main__":
