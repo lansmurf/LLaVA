@@ -108,9 +108,12 @@ def answer_question(
         image_path, question, tokenizer, model, vision_model, processor, projection_module
 ):
     image = Image.open(image_path)
+
+    question = '<image> ' + question
+
     chat = [
-        {"role": "user", "content": question},
-    ]
+        {"role": "user", "content": question},]
+
     question = (
         tokenizer.apply_chat_template(chat, tokenize=False))
 
