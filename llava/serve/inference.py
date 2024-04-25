@@ -166,7 +166,7 @@ def answer_question(
 
         while True:
             print('assistant: ')
-            tokenizer.pad_token_id = tokenizer.eos_token_id
+
             generated_ids = model.generate(
                 inputs_embeds=new_embeds,
                 attention_mask=attn_mask,
