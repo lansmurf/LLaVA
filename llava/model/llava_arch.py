@@ -232,6 +232,7 @@ class LlavaMetaForCausalLM(ABC):
         labels = [cur_labels[cur_attention_mask] for cur_labels, cur_attention_mask in zip(labels, attention_mask)]
 
         new_input_embeds = []
+        print('FIRST DEVICE: ', new_input_embeds.device)
         new_labels = []
         cur_image_idx = 0
         for batch_idx, cur_input_ids in enumerate(input_ids):
@@ -258,6 +259,8 @@ class LlavaMetaForCausalLM(ABC):
             cur_new_input_embeds = []
             cur_new_labels = []
 
+            print('SECOND DEVICE: ', new_input_embeds.device)
+
             for i in range(num_images + 1):
                 cur_new_input_embeds.append(cur_input_embeds_no_im[i])
                 cur_new_labels.append(cur_labels_noim[i])
@@ -267,7 +270,11 @@ class LlavaMetaForCausalLM(ABC):
                     cur_new_input_embeds.append(cur_image_features)
                     cur_new_labels.append(torch.full((cur_image_features.shape[0],), IGNORE_INDEX, device=cur_labels.device, dtype=cur_labels.dtype))
 
+            print('THIRD DEVICE: ', new_input_embeds.device)
+
             cur_new_input_embeds = [x.to(self.device) for x in cur_new_input_embeds]
+
+            print('FOURTH DEVICE: ', new_input_embeds.device)
 
             cur_new_input_embeds = torch.cat(cur_new_input_embeds)
             cur_new_labels = torch.cat(cur_new_labels)
@@ -361,7 +368,6 @@ class LlavaMetaForCausalLM(ABC):
         print('NEW INPUT EMBEDS DEVICE: ', new_input_embeds.device)
         new_input_embeds2 = new_input_embeds2.to(device)
         attn_mask = attn_mask.to(device)
-
 
         return None, position_ids, attn_mask, past_key_values, new_input_embeds2, new_labels
 
