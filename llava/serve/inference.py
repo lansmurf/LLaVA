@@ -161,7 +161,7 @@ def answer_question(
         print('MODEL DEVICE: ', device)
 
         print('NEW EMBEDS SHAPE: ', new_embeds.shape)
-        print('ATTN MASK SHAPE: ', attn_mask)
+        print('ATTN MASK SHAPE: ', attn_mask.shape)
         print("ATTN MASK: ", attn_mask)
 
         model_kwargs = {
