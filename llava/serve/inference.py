@@ -130,7 +130,7 @@ def answer_question(
         image_inputs = processor(images=[image], return_tensors="pt", do_resize=True,
                                           size={"height": 384, "width": 384}).to("cuda")
 
-        image_inputs = image_inputs['pixel_values'].squeeze(1)
+        image_inputs = image_inputs['pixel_values'].squeeze(0)
 
         print('img inputs: ', image_inputs.shape)
 
