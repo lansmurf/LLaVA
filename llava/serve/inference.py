@@ -63,7 +63,7 @@ def initialize_models():
         load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16
     )
 
-    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct", use_fast=True, add_special_tokens=False)
+    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct", use_fast=True)
     model = LlamaForCausalLM.from_pretrained(
         "unsloth/llama-3-8b-Instruct",
         torch_dtype=torch.float16,
@@ -119,7 +119,7 @@ def answer_question(
     prompt = (
         tokenizer.apply_chat_template(chat, tokenize=False))
 
-
+    prompt = prompt[17:]
     print('QUESTION IS: ', prompt)
 
     input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
