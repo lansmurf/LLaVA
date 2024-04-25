@@ -163,6 +163,7 @@ def answer_question(
         }
 
         while True:
+            print('assistant: ')
             generated_ids = model.generate(
                 inputs_embeds=new_embeds,
                 attention_mask=attn_mask,
