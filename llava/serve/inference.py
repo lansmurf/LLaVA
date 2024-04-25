@@ -171,8 +171,7 @@ def answer_question(
             'do_sample': True,
             'temperature': 0.2,
             'max_new_tokens': 1000,
-            'use_cache': True,
-            'streamer': streamer
+            'use_cache': True
         }
 
         generated_ids = model.generate(
