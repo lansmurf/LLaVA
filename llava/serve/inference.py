@@ -124,7 +124,7 @@ def answer_question(
     input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
         model.device)
 
-    print('INPUT IDS SHAPE: ', input_ids)
+    print('INPUT IDS SHAPE: ', input_ids.shape)
 
     with torch.no_grad():
         image_inputs = processor(images=[image], return_tensors="pt", do_resize=True,
