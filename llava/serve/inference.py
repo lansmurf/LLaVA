@@ -165,7 +165,7 @@ def answer_question(
         print("ATTN MASK: ", attn_mask)
 
         model_kwargs = {
-            'do_sample': True if args.temperature > 0 else False,
+            'do_sample': True,
             'temperature': 0.2,
             'max_new_tokens': 500,
             'use_cache': True
