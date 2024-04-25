@@ -155,8 +155,10 @@ def answer_question(
         #text_embeddings = embedding_layer(input_ids)
 
         new_embeds, attn_mask = process_tensors(input_ids, projected_embeddings, embedding_layer)
-        new_embeds.to('cuda')
-        attn_mask.to('cuda')
+        device = model.device
+        attn_mask = attn_mask.to(device)
+        new_embeds = new_embeds.to(device)
+        print('MODEL DEVICE: ', device)
 
         print('NEW EMBEDS SHAPE: ', new_embeds.shape)
 
