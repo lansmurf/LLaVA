@@ -358,7 +358,7 @@ class LlavaMetaForCausalLM(ABC):
         #print('NEW INPUT EMBEDS: ', new_input_embeds)
         print('NEW INPUT EMBEDS SHAPE: ', new_input_embeds.shape)
 
-        return None, position_ids, attention_mask, past_key_values, new_input_embeds, new_labels
+        return None, position_ids, attn_mask, past_key_values, new_input_embeds2, new_labels
 
     def initialize_vision_tokenizer(self, model_args, tokenizer):
         if model_args.mm_use_im_patch_token:
