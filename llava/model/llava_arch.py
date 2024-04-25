@@ -269,8 +269,6 @@ class LlavaMetaForCausalLM(ABC):
 
             cur_new_input_embeds = [x.to(self.device) for x in cur_new_input_embeds]
 
-            print('FOURTH DEVICE: ', new_input_embeds.device)
-
             cur_new_input_embeds = torch.cat(cur_new_input_embeds)
             cur_new_labels = torch.cat(cur_new_labels)
 
@@ -355,7 +353,7 @@ class LlavaMetaForCausalLM(ABC):
 
 
         new_input_embeds2, attn_mask = process_tensors(true_input_ids, image_features)
-        device = image_features.device
+        device = input_ids.device
         print('SIMPLIFIED INPUT EMBEDS SHAPE: ', new_input_embeds2.shape)
 
         #print('NEW INPUT EMBEDS: ', new_input_embeds)
