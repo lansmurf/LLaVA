@@ -351,15 +351,17 @@ class LlavaMetaForCausalLM(ABC):
             attention_mask = torch.ones(concatenated_embeddings.shape[:2], dtype=torch.long, device=device)
             return concatenated_embeddings, attention_mask
 
-        new_input_embeds2, attn_mask = process_tensors(true_input_ids, image_features)
-        device = image_features.device
-        new_input_embeds2.to(device)
-        attn_mask.to(device)
 
+        new_input_embeds2, attn_mask = process_tensors(true_input_ids, image_features)
+        device = new_input_embeds.device
         print('SIMPLIFIED INPUT EMBEDS SHAPE: ', new_input_embeds2.shape)
 
         #print('NEW INPUT EMBEDS: ', new_input_embeds)
         print('NEW INPUT EMBEDS SHAPE: ', new_input_embeds.shape)
+        print('NEW INPUT EMBEDS DEVICE: ', new_input_embeds.device)
+        new_input_embeds2 = new_input_embeds2.to(device)
+        attn_mask = attn_mask.to(device)
+
 
         return None, position_ids, attn_mask, past_key_values, new_input_embeds2, new_labels
 
