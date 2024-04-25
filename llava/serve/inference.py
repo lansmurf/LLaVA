@@ -125,8 +125,8 @@ def answer_question(
     print('INPUT IDS SHAPE: ', input_ids)
 
     with torch.no_grad():
-        image_inputs = processor(images=image, return_tensors="pt").to("cuda").half()
-        outputs = vision_model(**image_inputs)
+        image_inputs = processor(images=image, return_tensors="pt").to("cuda")
+        outputs = vision_model(**image_inputs.half())
         last_hidden_state = outputs.last_hidden_state
         image_features = last_hidden_state[:, 1:]
 
