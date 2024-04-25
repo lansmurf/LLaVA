@@ -27,7 +27,7 @@ def tokenizer_image_token(prompt, tokenizer, image_token_index=-200, return_tens
     for x in insert_separator(prompt_chunks, [image_token_index] * (offset + 1)):
         input_ids.extend(x[offset:])
 
-    return input_ids
+    return torch.tensor(input_ids, dtype=torch.long)
 
 
 def process_tensors(input_ids, image_features, embedding_layer):
@@ -109,20 +109,20 @@ def answer_question(
 ):
     image = Image.open(image_path)
 
-    question = '<image> ' + question
+    question = '<image>' + question
 
     chat = [
         {"role": "user", "content": question},]
 
-    question = (
+    prompt = (
         tokenizer.apply_chat_template(chat, tokenize=False))
 
     print('QUESTION IS: ', question)
 
-    input_ids = tokenizer_image_token(question, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
+    input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
         model.device)
 
-    print('INPUT IDS SHAPE: ', input_ids.shape)
+    print('INPUT IDS SHAPE: ', input_ids)
 
     with torch.no_grad():
         image_inputs = processor(images=image, return_tensors="pt").to("cuda")
