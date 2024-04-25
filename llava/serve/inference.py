@@ -63,7 +63,7 @@ def initialize_models():
         load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16
     )
 
-    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct", use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct", use_fast=True, add_special_tokens=False)
     model = LlamaForCausalLM.from_pretrained(
         "unsloth/llama-3-8b-Instruct",
         torch_dtype=torch.float16,
@@ -125,6 +125,7 @@ def answer_question(
         model.device)
 
     print('INPUT IDS SHAPE: ', input_ids.shape)
+    print('INPUT IDS SHAPE: ', input_ids)
 
     with torch.no_grad():
         image_inputs = processor(images=[image], return_tensors="pt", do_resize=True,
@@ -137,10 +138,10 @@ def answer_question(
         image_forward_outs = vision_model(image_inputs.to(device='cuda', dtype=torch.float16).unsqueeze(0),
                                                output_hidden_states=True)
 
-        image_forward_outs = image_forward_outs.last_hidden_state
+        image_features = image_forward_outs.hidden_states[-2]
         print('IMG FORWARD OUT SHAPE: ', image_forward_outs.shape)
 
-        image_features = image_forward_outs[:, 1:]
+        image_features = image_features[:, 1:]
 
         print('IMAGE FEATURES SHAPE BEFORE PROJ: ', image_features.shape)
 
