@@ -126,7 +126,7 @@ def answer_question(
     print('INPUT IDS SHAPE: ', input_ids)
 
     with torch.no_grad():
-        image_inputs = processor(images=image, return_tensors="pt", do_resize=True,
+        image_inputs = processor(images=[image], return_tensors="pt", do_resize=True,
                                           size={"height": 384, "width": 384}).to("cuda")
 
         print('image inputs: ', image_inputs)

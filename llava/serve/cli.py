@@ -69,7 +69,7 @@ def main(args):
     # Similar operation in model_worker.py
     if image_processor:
         image_tensor = process_images([image], image_processor, model.config)
-        print('image tensor shape: ', image_tensor)
+        print('image tensor shape: ', image_tensor.shape)
     else:
         image_tensor = None
 
