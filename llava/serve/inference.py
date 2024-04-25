@@ -112,14 +112,19 @@ def answer_question(
 ):
     image = Image.open(image_path).convert('RGB')
 
-    question = '<image>' + question
+    tokenizer.bos_token_id = None
+    tokenizer.eos_token = "<|eot_id|>"
 
-    wrap_sys = lambda msg: f"<|start_header_id|>system<|end_header_id|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
-    wrap_user = lambda msg: f"<|start_header_id|>user<|end_header_id|>\n\n{msg}<|eot_id|>"
-    wrap_assistant = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n{msg}<|eot_id|>"
-    wrap_assistant_completion = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n"
+    try:
+        inp = input(str)
+    except EOFError:
+        inp = ""
+    if not inp:
+        print("exit...")
 
-    prompt = f"<|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+    question = '<image>' + inp
+
+    prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
     input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
         model.device)
@@ -149,20 +154,38 @@ def answer_question(
         attn_mask = attn_mask.to(device)
         new_embeds = new_embeds.to(device)
 
+
         model_kwargs = {
             'do_sample': True,
             'temperature': 0.2,
-            'max_new_tokens': 1000,
+            'max_new_tokens': 2000,
             'use_cache': True,
             'streamer': streamer
         }
 
-        generated_ids = model.generate(
-            inputs_embeds=new_embeds,
-            attention_mask=attn_mask,
-            **model_kwargs
+        while True:
 
-        )[0]
+            generated_ids = model.generate(
+                inputs_embeds=new_embeds,
+                attention_mask=attn_mask,
+                **model_kwargs
+
+            )[0]
+
+            generated_text = tokenizer.decode(generated_ids, skip_special_tokens=False)
+            try:
+                inp = input('user: ')
+            except EOFError:
+                inp = ""
+            if not inp:
+                print("exit...")
+
+            new_text = generated_text + "<|start_header_id|>user<|end_header_id|>\n\n" + inp + "<|start_header_id|>assistant<|end_header_id|>\n\n"
+            new_input_ids = tokenizer(new_text, return_tensors='pt').input_ids.to(device)
+            new_embeddings = embedding_layer(new_input_ids)
+
+            new_embeds = torch.cat([new_embeds, new_embeddings], dim=1)
+            attn_mask = torch.ones(new_embeds.shape[:2], device=device)
 
 
 if __name__ == "__main__":
