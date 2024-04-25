@@ -338,12 +338,17 @@ class LlavaMetaForCausalLM(ABC):
             embeddings_1 = self.get_model().embed_tokens(input_ids_1)
             embeddings_2 = self.get_model().embed_tokens(input_ids_2)
 
-            # Concatenate the embeddings and image features
-            concatenated_features = torch.cat([embeddings_1, image_features, embeddings_2], dim=1)
+            device = image_features.device
+            token_embeddings_part1 = embeddings_1.to(device)
+            token_embeddings_part2 = embeddings_2.to(device)
 
-            # Create an attention mask for the new tensor
-            attention_mask = torch.ones((1, concatenated_features.shape[1]), dtype=torch.long)
+            # Concatenate the token embeddings and image features
+            concatenated_embeddings = torch.cat(
+                [token_embeddings_part1, image_features, token_embeddings_part2], dim=1
+            )
 
+            # Create the corrected attention mask
+            attention_mask = torch.ones(concatenated_embeddings.shape[:2], dtype=torch.long, device=device)
             return concatenated_features, attention_mask
 
         new_input_embeds2, attn_mask = process_tensors(true_input_ids, image_features)
