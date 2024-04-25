@@ -63,7 +63,7 @@ def initialize_models():
         load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16
     )
 
-    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct")
+    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct", use_fast=True)
     model = LlamaForCausalLM.from_pretrained(
         "unsloth/llama-3-8b-Instruct",
         torch_dtype=torch.float16,
