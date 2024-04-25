@@ -224,6 +224,8 @@ class LlavaMetaForCausalLM(ABC):
         if labels is None:
             labels = torch.full_like(input_ids, IGNORE_INDEX)
 
+        true_input_ids = input_ids.copy()
+
         # remove the padding using attention_mask -- FIXME
         _input_ids = input_ids
         input_ids = [cur_input_ids[cur_attention_mask] for cur_input_ids, cur_attention_mask in zip(input_ids, attention_mask)]
@@ -344,7 +346,7 @@ class LlavaMetaForCausalLM(ABC):
 
             return concatenated_features, attention_mask
 
-        new_input_embeds2, attn_mask = process_tensors(input_ids, image_features)
+        new_input_embeds2, attn_mask = process_tensors(true_input_ids, image_features)
 
         print('SIMPLIFIED INPUT EMBEDS SHAPE: ', new_input_embeds2.shape)
 
