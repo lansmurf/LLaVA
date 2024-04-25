@@ -114,8 +114,6 @@ def answer_question(
     question = (
         tokenizer.apply_chat_template(chat, tokenize=False))
 
-    question = question.to('cuda')
-
     print('QUESTION IS: ', question)
 
     input_ids = tokenizer_image_token(question, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
