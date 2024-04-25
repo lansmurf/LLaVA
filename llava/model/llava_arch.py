@@ -326,11 +326,7 @@ class LlavaMetaForCausalLM(ABC):
 
         def process_tensors(input_ids, image_features):
             # Find the index of -200 in input_ids
-            input_ids_tensor = torch.tensor(input_ids, dtype=torch.long)
-
-            # Find the index of -200 in input_ids
-            bool_mask = input_ids_tensor == -200
-            split_index = bool_mask.nonzero(as_tuple=True)[1].item()
+            split_index = (input_ids == -200).nonzero(as_tuple=True)[1][0]
 
             # Split the input_ids at the index found, excluding -200
             input_ids_1 = input_ids[:, :split_index]
