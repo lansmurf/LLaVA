@@ -135,7 +135,7 @@ def answer_question(
 
         print('new img inputs: ', image_inputs)
 
-        image_forward_outs = vision_model(image_inputs.to(device='cuda', dtype=torch.float16),
+        image_forward_outs = vision_model(image_inputs.to(device='cuda', dtype=torch.float16).unsqueeze(0),
                                                output_hidden_states=True)
 
         print('IMG FORWARD OUT SHAPE: ', image_forward_outs.shape)
