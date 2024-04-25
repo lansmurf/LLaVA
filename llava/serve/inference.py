@@ -139,13 +139,14 @@ def answer_question(
                                                output_hidden_states=True)
 
         image_features = image_forward_outs.hidden_states[-2]
-        print('IMG FORWARD OUT SHAPE: ', image_forward_outs.shape)
 
-        image_features = image_features[:, 1:]
+        print('IMG FORWARD OUT SHAPE: ', image_features)
 
-        print('IMAGE FEATURES SHAPE BEFORE PROJ: ', image_features.shape)
+        image_features2 = image_features[:, 1:]
 
-        projected_embeddings = projection_module(image_features).to("cuda")
+        print('IMAGE FEATURES SHAPE BEFORE PROJ: ', image_features2.shape)
+
+        projected_embeddings = projection_module(image_features2).to("cuda")
 
         print('IMAGE FEATURES SHAPE AFTER PROJ: ', projected_embeddings.shape)
 
