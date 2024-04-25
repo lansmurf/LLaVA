@@ -8,7 +8,8 @@ from transformers import (
     AutoProcessor,
     AutoTokenizer,
     BitsAndBytesConfig,
-    LlamaForCausalLM,
+    LlamaForCausalLM, SiglipImageProcessor, SiglipVisionModel
+
 )
 
 
@@ -73,8 +74,8 @@ def initialize_models():
         param.requires_grad = False
 
     model_name = "google/siglip-so400m-patch14-384"
-    vision_model = AutoModel.from_pretrained(model_name, torch_dtype=torch.float16)
-    processor = AutoProcessor.from_pretrained(model_name)
+    vision_model = SiglipVisionModel.from_pretrained(model_name, torch_dtype=torch.float16)
+    processor = SiglipImageProcessor.from_pretrained(model_name)
 
     vision_model = vision_model.to("cuda")
 
