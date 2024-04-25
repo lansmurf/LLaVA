@@ -324,6 +324,30 @@ class LlavaMetaForCausalLM(ABC):
         if _position_ids is None:
             position_ids = None
 
+        def process_tensors(input_ids, image_features):
+            # Find the index of -200 in input_ids
+            split_index = (input_ids == -200).nonzero(as_tuple=True)[1].item()
+
+            # Split the input_ids at the index found, excluding -200
+            input_ids_1 = input_ids[:, :split_index]
+            input_ids_2 = input_ids[:, split_index + 1:]
+
+            # Convert input_ids to embeddings
+            embeddings_1 = self.get_model().embed_tokens(input_ids_1)
+            embeddings_2 = self.get_model().embed_tokens(input_ids_2)
+
+            # Concatenate the embeddings and image features
+            concatenated_features = torch.cat([embeddings_1, image_features, embeddings_2], dim=1)
+
+            # Create an attention mask for the new tensor
+            attention_mask = torch.ones((1, concatenated_features.shape[1]), dtype=torch.long)
+
+            return concatenated_features, attention_mask
+
+        new_input_embeds2, attn_mask = process_tensors(input_ids, image_features)
+
+        print('SIMPLIFIED INPUT EMBEDS SHAPE: ', new_input_embeds2.shape)
+
         #print('NEW INPUT EMBEDS: ', new_input_embeds)
         print('NEW INPUT EMBEDS SHAPE: ', new_input_embeds.shape)
 
