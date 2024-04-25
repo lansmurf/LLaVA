@@ -224,7 +224,7 @@ class LlavaMetaForCausalLM(ABC):
         if labels is None:
             labels = torch.full_like(input_ids, IGNORE_INDEX)
 
-        true_input_ids = input_ids.copy()
+        true_input_ids = input_ids.clone()
 
         # remove the padding using attention_mask -- FIXME
         _input_ids = input_ids
