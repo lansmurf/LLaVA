@@ -324,6 +324,9 @@ class LlavaMetaForCausalLM(ABC):
         if _position_ids is None:
             position_ids = None
 
+        print('NEW INPUT EMBEDS: ', new_input_embeds)
+        print('NEW INPUT EMBEDS SHAPE: ', new_input_embeds.shape)
+
         return None, position_ids, attention_mask, past_key_values, new_input_embeds, new_labels
 
     def initialize_vision_tokenizer(self, model_args, tokenizer):
