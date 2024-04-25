@@ -126,8 +126,9 @@ def answer_question(
 
     with torch.no_grad():
         image_inputs = processor(images=image, return_tensors="pt").to("cuda")
-        image_inputs["pixel_values"] = image_inputs["pixel_values"].half()
-        image_features = vision_model.get_image_features(**image_inputs)
+        outputs = vision_model(**image_inputs)
+        last_hidden_state = outputs.last_hidden_state
+        image_features = last_hidden_state[:, 1:]
 
         print('IMAGE FEATURES SHAPE BEFORE PROJ: ', image_features.shape)
 
