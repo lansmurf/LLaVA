@@ -119,7 +119,8 @@ def answer_question(
     prompt = (
         tokenizer.apply_chat_template(chat, tokenize=False))
 
-    print('QUESTION IS: ', question)
+
+    print('QUESTION IS: ', prompt)
 
     input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
         model.device)
