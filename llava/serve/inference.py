@@ -164,7 +164,6 @@ def answer_question(
         }
 
         while True:
-
             generated_ids = model.generate(
                 inputs_embeds=new_embeds,
                 attention_mask=attn_mask,
@@ -198,7 +197,7 @@ if __name__ == "__main__":
 
     answer_question(
         args.image,
-        args.question,
+        'asd',
         tokenizer,
         model,
         vision_model,
