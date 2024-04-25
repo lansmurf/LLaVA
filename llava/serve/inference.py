@@ -107,7 +107,7 @@ def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device='cuda')
 def answer_question(
         image_path, question, tokenizer, model, vision_model, processor, projection_module
 ):
-    image = Image.open(image_path)
+    image = Image.open(image_path).convert('RGB')
 
     question = '<image>' + question
 
@@ -127,8 +127,11 @@ def answer_question(
     with torch.no_grad():
         image_inputs = processor(images=image, return_tensors="pt").to("cuda")
 
+        image_inputs = image_inputs['pixel_values']
+
         image_forward_outs = vision_model(image_inputs.to(device='cuda', dtype=torch.float16),
                                                output_hidden_states=True)
+
         image_features = image_forward_outs[:, 1:]
 
         print('image forward out: ', image_forward_outs.shape)
