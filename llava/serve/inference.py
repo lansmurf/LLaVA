@@ -177,7 +177,8 @@ def answer_question(
             except EOFError:
                 inp = ""
             if not inp:
-                print("exit...")
+                print("exiting...")
+                break
 
             new_text = generated_text + "<|start_header_id|>user<|end_header_id|>\n\n" + inp + "<|start_header_id|>assistant<|end_header_id|>\n\n"
             new_input_ids = tokenizer(new_text, return_tensors='pt').input_ids.to(device)
