@@ -61,9 +61,9 @@ def initialize_models():
         load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16
     )
 
-    tokenizer = AutoTokenizer.from_pretrained("unsloth/Meta-Llama-3-8B-Instruct")
+    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct")
     model = LlamaForCausalLM.from_pretrained(
-        "unsloth/Meta-Llama-3-8B-Instruct",
+        "unsloth/llama-3-8b-Instruct",
         torch_dtype=torch.float16,
         device_map="auto",
         quantization_config=bnb_config,
