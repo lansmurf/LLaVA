@@ -128,7 +128,7 @@ def answer_question(
     print('INPUT IDS SHAPE: ', input_ids.shape)
     print('INPUT IDS SHAPE: ', input_ids)
 
-    with torch.no_grad():
+    with torch.inference_mode():
         image_inputs = processor(images=[image], return_tensors="pt", do_resize=True,
                                           size={"height": 384, "width": 384}).to("cuda")
 
@@ -161,14 +161,21 @@ def answer_question(
         print('MODEL DEVICE: ', device)
 
         print('NEW EMBEDS SHAPE: ', new_embeds.shape)
+        print('ATTN MASK SHAPE: ', attn_mask)
+        print("ATTN MASK: ", attn_mask)
+
+        model_kwargs = {
+            'do_sample': True if args.temperature > 0 else False,
+            'temperature': 0.6,
+            'max_new_tokens': 500,
+            'use_cache': True
+        }
 
         generated_ids = model.generate(
             inputs_embeds=new_embeds,
             attention_mask=attn_mask,
-            max_new_tokens=1000,
-            temperature=0.7,
-            repetition_penalty=1.1,
-            do_sample=True,
+            **model_kwargs
+
         )[0]
         response = tokenizer.decode(
             generated_ids, skip_special_tokens=True, clean_up_tokenization_space=True

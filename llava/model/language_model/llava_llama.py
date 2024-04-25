@@ -135,6 +135,11 @@ class LlavaLlamaForCausalLM(LlamaForCausalLM, LlavaMetaForCausalLM):
         else:
             inputs_embeds = self.get_model().embed_tokens(inputs)
 
+
+        print('POSITION IDS: ', position_ids)
+        print('ATTN MASK: ', attention_mask)
+        print('INPUT EMBEDS: ', inputs_embeds.shape)
+
         return super().generate(
             position_ids=position_ids,
             attention_mask=attention_mask,
