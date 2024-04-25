@@ -353,7 +353,7 @@ class LlavaMetaForCausalLM(ABC):
 
 
         new_input_embeds2, attn_mask = process_tensors(true_input_ids, image_features)
-        device = input_ids.device
+        device = true_input_ids.device
         print('SIMPLIFIED INPUT EMBEDS SHAPE: ', new_input_embeds2.shape)
 
         #print('NEW INPUT EMBEDS: ', new_input_embeds)
