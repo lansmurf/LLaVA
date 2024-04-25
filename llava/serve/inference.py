@@ -11,6 +11,7 @@ from transformers import (
     LlamaForCausalLM, SiglipImageProcessor, SiglipVisionModel
 
 )
+from transformers import TextStreamer
 
 
 
@@ -128,6 +129,8 @@ def answer_question(
     print('INPUT IDS SHAPE: ', input_ids.shape)
     print('INPUT IDS SHAPE: ', input_ids)
 
+    streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
+
     with torch.inference_mode():
         image_inputs = processor(images=[image], return_tensors="pt", do_resize=True,
                                           size={"height": 384, "width": 384}).to("cuda")
@@ -167,8 +170,9 @@ def answer_question(
         model_kwargs = {
             'do_sample': True,
             'temperature': 0.2,
-            'max_new_tokens': 500,
-            'use_cache': True
+            'max_new_tokens': 1000,
+            'use_cache': True,
+            'streamer': streamer
         }
 
         generated_ids = model.generate(
