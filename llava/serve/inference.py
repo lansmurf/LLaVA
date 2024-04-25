@@ -113,13 +113,13 @@ def answer_question(
 
     question = '<image>' + question
 
-    chat = [
-        {"role": "user", "content": question},]
+    wrap_sys = lambda msg: f"<|start_header_id|>system<|end_header_id|>\n\n{msg}<|eot_id|>" if len(msg) > 0 else msg
+    wrap_user = lambda msg: f"<|start_header_id|>user<|end_header_id|>\n\n{msg}<|eot_id|>"
+    wrap_assistant = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n{msg}<|eot_id|>"
+    wrap_assistant_completion = lambda msg: f"<|start_header_id|>assistant<|end_header_id|>\n\n"
 
-    prompt = (
-        tokenizer.apply_chat_template(chat, tokenize=False))
+    prompt = f"<|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
-    prompt = prompt[17:]
     print('QUESTION IS: ', prompt)
 
     input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
