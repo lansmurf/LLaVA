@@ -191,8 +191,6 @@ def answer_question(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Answer questions based on an image")
     parser.add_argument("-i", "--image", required=True, help="Path to the image file")
-    parser.add_argument("-q", "--question", required=True, help="Question to be asked")
-
     args = parser.parse_args()
 
     tokenizer, model, vision_model, processor = initialize_models()
