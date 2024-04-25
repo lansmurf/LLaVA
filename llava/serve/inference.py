@@ -116,7 +116,7 @@ def answer_question(
     tokenizer.eos_token = "<|eot_id|>"
 
     try:
-        inp = input(str)
+        inp = input('user: ')
     except EOFError:
         inp = ""
     if not inp:
@@ -153,7 +153,6 @@ def answer_question(
         device = model.device
         attn_mask = attn_mask.to(device)
         new_embeds = new_embeds.to(device)
-
 
         model_kwargs = {
             'do_sample': True,
