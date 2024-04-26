@@ -122,7 +122,7 @@ def answer_question(
 
     question = "<image>" + q
 
-    prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+    prompt = f"<|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
     input_ids = (
         tokenizer_image_token(prompt, tokenizer)
