@@ -16,7 +16,6 @@ from transformers import (
 from transformers import TextStreamer
 
 
-
 def tokenizer_image_token(prompt, tokenizer, image_token_index=-200, return_tensors=None):
     prompt_chunks = [tokenizer(chunk).input_ids for chunk in prompt.split('<image>')]
 
@@ -144,9 +143,7 @@ def answer_question(
 
         image_features = image_forward_outs.hidden_states[-2]
 
-        image_features2 = image_features[:, 1:]
-
-        projected_embeddings = projection_module(image_features2).to("cuda")
+        projected_embeddings = projection_module(image_features).to("cuda")
 
         embedding_layer = model.get_input_embeddings()
         #text_embeddings = embedding_layer(input_ids)
