@@ -125,10 +125,12 @@ def answer_question(
     prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
     input_ids = (
-        tokenizer_image_token(prompt, tokenizer, -200, return_tensors="pt")
+        tokenizer_image_token(prompt, tokenizer)
         .unsqueeze(0)
         .to(model.device)
     )
+
+    print(input_ids.shape)
 
 
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
