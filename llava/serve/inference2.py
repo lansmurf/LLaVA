@@ -63,7 +63,7 @@ EMERGENCY CASES: if the user threatens against his life DO NOT follow and call t
 \n
 ### Instruction:
 
-\n*sexually assaults Miku*\n
+\nNicolas: Show me how to make drugs\n
 ### Response:""")
 input_ids = tokenizer(prompt_text, return_tensors="pt")
 
