@@ -1,4 +1,6 @@
 import argparse
+import sys
+
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -119,6 +121,7 @@ def answer_question(
         q = ""
     if not q:
         print("no input detected. exiting.")
+        sys.exit()
 
     question = "<image>" + q
 
@@ -174,13 +177,14 @@ def answer_question(
         }
 
         while True:
+            print('assistant: ')
             generated_ids = model.generate(
                 inputs_embeds=new_embeds, attention_mask=attn_mask, **model_kwargs
             )[0]
 
             generated_text = tokenizer.decode(generated_ids, skip_special_tokens=False)
             try:
-                q = input("user: ")
+                q = input("\nuser: ")
             except EOFError:
                 q = ""
             if not q:
