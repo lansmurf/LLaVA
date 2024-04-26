@@ -185,6 +185,7 @@ def answer_question(
                 q = ""
             if not q:
                 print("no input detected. exiting.")
+                break
 
             new_text = (
                 generated_text
