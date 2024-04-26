@@ -1,30 +1,32 @@
 import argparse
-import sys
-
-import numpy as np
 import torch
 import torch.nn as nn
 from PIL import Image
 from transformers import (
-    AutoModel,
-    AutoProcessor,
     AutoTokenizer,
     BitsAndBytesConfig,
-    LlamaForCausalLM, SiglipImageProcessor, SiglipVisionModel
-
+    LlamaForCausalLM,
+    SiglipImageProcessor,
+    SiglipVisionModel,
 )
 from transformers import TextStreamer
 
 
-def tokenizer_image_token(prompt, tokenizer, image_token_index=-200, return_tensors=None):
-    prompt_chunks = [tokenizer(chunk).input_ids for chunk in prompt.split('<image>')]
+def tokenizer_image_token(
+    prompt, tokenizer, image_token_index=-200, return_tensors=None
+):
+    prompt_chunks = [tokenizer(chunk).input_ids for chunk in prompt.split("<image>")]
 
     def insert_separator(X, sep):
         return [ele for sublist in zip(X, [sep] * len(X)) for ele in sublist][:-1]
 
     input_ids = []
     offset = 0
-    if len(prompt_chunks) > 0 and len(prompt_chunks[0]) > 0 and prompt_chunks[0][0] == tokenizer.bos_token_id:
+    if (
+        len(prompt_chunks) > 0
+        and len(prompt_chunks[0]) > 0
+        and prompt_chunks[0][0] == tokenizer.bos_token_id
+    ):
         offset = 1
         input_ids.append(prompt_chunks[0][0])
 
@@ -40,7 +42,7 @@ def process_tensors(input_ids, image_features, embedding_layer):
 
     # Split the input_ids at the index found, excluding -200
     input_ids_1 = input_ids[:, :split_index]
-    input_ids_2 = input_ids[:, split_index + 1:]
+    input_ids_2 = input_ids[:, split_index + 1 :]
 
     # Convert input_ids to embeddings
     embeddings_1 = embedding_layer(input_ids_1)
@@ -56,7 +58,9 @@ def process_tensors(input_ids, image_features, embedding_layer):
     )
 
     # Create the corrected attention mask
-    attention_mask = torch.ones(concatenated_embeddings.shape[:2], dtype=torch.long, device=device)
+    attention_mask = torch.ones(
+        concatenated_embeddings.shape[:2], dtype=torch.long, device=device
+    )
     return concatenated_embeddings, attention_mask
 
 
@@ -65,7 +69,9 @@ def initialize_models():
         load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16
     )
 
-    tokenizer = AutoTokenizer.from_pretrained("unsloth/llama-3-8b-Instruct", use_fast=True)
+    tokenizer = AutoTokenizer.from_pretrained(
+        "unsloth/llama-3-8b-Instruct", use_fast=True
+    )
     model = LlamaForCausalLM.from_pretrained(
         "unsloth/llama-3-8b-Instruct",
         torch_dtype=torch.float16,
@@ -77,7 +83,9 @@ def initialize_models():
         param.requires_grad = False
 
     model_name = "google/siglip-so400m-patch14-384"
-    vision_model = SiglipVisionModel.from_pretrained(model_name, torch_dtype=torch.float16)
+    vision_model = SiglipVisionModel.from_pretrained(
+        model_name, torch_dtype=torch.float16
+    )
     processor = SiglipImageProcessor.from_pretrained(model_name)
 
     vision_model = vision_model.to("cuda")
@@ -93,15 +101,16 @@ class ProjectionModule(nn.Module):
         self.model = nn.Sequential(
             nn.Linear(mm_hidden_size, hidden_size),
             nn.GELU(),
-            nn.Linear(hidden_size, hidden_size)
+            nn.Linear(hidden_size, hidden_size),
         )
 
     def forward(self, x):
         return self.model(x)
 
-def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device='cuda'):
+
+def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device="cuda"):
     projection_module = ProjectionModule(mm_hidden_size, hidden_size)
-    checkpoint = torch.load("./checkpoints/llama-3/checkpoint-2400/mm_projector.bin")
+    checkpoint = torch.load("./mm_projector.bin")
     checkpoint = {k.replace("mm_projector.", ""): v for k, v in checkpoint.items()}
     projection_module.load_state_dict(checkpoint)
     projection_module = projection_module.to(device).half()
@@ -109,81 +118,92 @@ def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device='cuda')
 
 
 def answer_question(
-        image_path, tokenizer, model, vision_model, processor, projection_module
+    image_path, tokenizer, model, vision_model, processor, projection_module
 ):
-    image = Image.open(image_path).convert('RGB')
+    image = Image.open(image_path).convert("RGB")
 
     tokenizer.bos_token_id = None
     tokenizer.eos_token = "<|eot_id|>"
 
     try:
-        inp = input('user: ')
+        q = input("user: ")
     except EOFError:
-        inp = ""
-    if not inp:
-        sys.exit("exiting..")
+        q = ""
+    if not q:
+        print("no input detected. exiting.")
 
-    question = '<image>' + inp
+    question = "<image>" + q
 
     prompt = f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
-    input_ids = tokenizer_image_token(prompt, tokenizer, -200, return_tensors='pt').unsqueeze(0).to(
-        model.device)
+    input_ids = (
+        tokenizer_image_token(prompt, tokenizer, -200, return_tensors="pt")
+        .unsqueeze(0)
+        .to(model.device)
+    )
 
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
 
     with torch.inference_mode():
-        image_inputs = processor(images=[image], return_tensors="pt", do_resize=True,
-                                          size={"height": 384, "width": 384}).to("cuda")
+        image_inputs = processor(
+            images=[image],
+            return_tensors="pt",
+            do_resize=True,
+            size={"height": 384, "width": 384},
+        ).to("cuda")
 
-        image_inputs = image_inputs['pixel_values'].squeeze(0)
+        image_inputs = image_inputs["pixel_values"].squeeze(0)
 
-        image_forward_outs = vision_model(image_inputs.to(device='cuda', dtype=torch.float16).unsqueeze(0),
-                                               output_hidden_states=True)
+        image_forward_outs = vision_model(
+            image_inputs.to(device="cuda", dtype=torch.float16).unsqueeze(0),
+            output_hidden_states=True,
+        )
 
         image_features = image_forward_outs.hidden_states[-2]
 
         projected_embeddings = projection_module(image_features).to("cuda")
 
-        print('projected_embeddings: ', projected_embeddings.shape)
-
         embedding_layer = model.get_input_embeddings()
-        #text_embeddings = embedding_layer(input_ids)
+        # text_embeddings = embedding_layer(input_ids)
 
-        new_embeds, attn_mask = process_tensors(input_ids, projected_embeddings, embedding_layer)
+        new_embeds, attn_mask = process_tensors(
+            input_ids, projected_embeddings, embedding_layer
+        )
         device = model.device
         attn_mask = attn_mask.to(device)
         new_embeds = new_embeds.to(device)
 
         model_kwargs = {
-            'do_sample': True,
-            'temperature': 0.2,
-            'max_new_tokens': 2000,
-            'use_cache': True,
-            'streamer': streamer
+            "do_sample": True,
+            "temperature": 0.2,
+            "max_new_tokens": 2000,
+            "use_cache": True,
+            "streamer": streamer,
+            "pad_token_id": tokenizer.eos_token_id
         }
 
         while True:
-            print('assistant: ')
-
             generated_ids = model.generate(
-                inputs_embeds=new_embeds,
-                attention_mask=attn_mask,
-                **model_kwargs
-
+                inputs_embeds=new_embeds, attention_mask=attn_mask, **model_kwargs
             )[0]
 
             generated_text = tokenizer.decode(generated_ids, skip_special_tokens=False)
             try:
-                inp = input('user: ')
+                q = input("user: ")
             except EOFError:
-                inp = ""
-            if not inp:
-                print("exiting...")
-                break
+                q = ""
+            if not q:
+                print("no input detected. exiting.")
 
-            new_text = generated_text + "<|start_header_id|>user<|end_header_id|>\n\n" + inp + "<|start_header_id|>assistant<|end_header_id|>\n\n"
-            new_input_ids = tokenizer(new_text, return_tensors='pt').input_ids.to(device)
+            new_text = (
+                generated_text
+                + "<|start_header_id|>user<|end_header_id|>\n\n"
+                + q
+                + "<|start_header_id|>assistant<|end_header_id|>\n\n"
+            )
+            new_input_ids = tokenizer(new_text, return_tensors="pt").input_ids.to(
+                device
+            )
             new_embeddings = embedding_layer(new_input_ids)
 
             new_embeds = torch.cat([new_embeds, new_embeddings], dim=1)
