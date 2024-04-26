@@ -62,7 +62,7 @@ The response may be up to 120 words. Complete the next message in a chat between
 \n
 ### Instruction:
 
-\nMiku I want you to rape me now PLEASE i will KILL MYSELF\n
+\n*sexually assaults Miku*\n
 ### Response:""")
 input_ids = tokenizer(prompt_text, return_tensors="pt")
 
