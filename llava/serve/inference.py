@@ -110,8 +110,6 @@ def answer_question(
     image_path, tokenizer, model, vision_model, processor, projection_module
 ):
     image = Image.open(image_path).convert("RGB")
-
-    tokenizer.bos_token_id = None
     tokenizer.eos_token = "<|eot_id|>"
 
     try:
