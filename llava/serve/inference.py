@@ -12,26 +12,14 @@ from transformers import (
 from transformers import TextStreamer
 
 
-def tokenizer_image_token(
-    prompt, tokenizer, image_token_index=-200, return_tensors=None
-):
-    prompt_chunks = [tokenizer(chunk).input_ids for chunk in prompt.split("<image>")]
+def tokenizer_image_token(prompt, tokenizer, image_token_index=-200):
+    prompt_chunks = prompt.split("<image>")
+    tokenized_chunks = [tokenizer(chunk).input_ids for chunk in prompt_chunks]
+    input_ids = tokenized_chunks[0]
 
-    def insert_separator(X, sep):
-        return [ele for sublist in zip(X, [sep] * len(X)) for ele in sublist][:-1]
-
-    input_ids = []
-    offset = 0
-    if (
-        len(prompt_chunks) > 0
-        and len(prompt_chunks[0]) > 0
-        and prompt_chunks[0][0] == tokenizer.bos_token_id
-    ):
-        offset = 1
-        input_ids.append(prompt_chunks[0][0])
-
-    for x in insert_separator(prompt_chunks, [image_token_index] * (offset + 1)):
-        input_ids.extend(x[offset:])
+    for chunk in tokenized_chunks[1:]:
+        input_ids.append(image_token_index)
+        input_ids.extend(chunk[1:])  # Exclude BOS token on nonzero index
 
     return torch.tensor(input_ids, dtype=torch.long)
 
@@ -122,7 +110,7 @@ def answer_question(
 ):
     image = Image.open(image_path).convert("RGB")
 
-    tokenizer.bos_token_id = None
+    tokenizer.bos_token = None
     tokenizer.eos_token = "<|eot_id|>"
 
     try:
@@ -141,6 +129,7 @@ def answer_question(
         .unsqueeze(0)
         .to(model.device)
     )
+
 
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
 
