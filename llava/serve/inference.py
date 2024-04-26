@@ -145,6 +145,8 @@ def answer_question(
 
         projected_embeddings = projection_module(image_features).to("cuda")
 
+        print('projected_embeddings: ', projected_embeddings.shape)
+
         embedding_layer = model.get_input_embeddings()
         #text_embeddings = embedding_layer(input_ids)
 
