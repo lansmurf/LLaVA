@@ -1,6 +1,5 @@
 import argparse
 import sys
-
 import torch
 import torch.nn as nn
 from PIL import Image
@@ -112,7 +111,7 @@ def answer_question(
 ):
     image = Image.open(image_path).convert("RGB")
 
-    tokenizer.bos_token = None
+    tokenizer.bos_token_id = None
     tokenizer.eos_token = "<|eot_id|>"
 
     try:
@@ -123,6 +122,7 @@ def answer_question(
         print("no input detected. exiting.")
         sys.exit()
 
+
     question = "<image>" + q
 
     prompt = f"<|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
@@ -132,9 +132,6 @@ def answer_question(
         .unsqueeze(0)
         .to(model.device)
     )
-
-    print(input_ids)
-
 
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
 
@@ -189,7 +186,6 @@ def answer_question(
                 q = ""
             if not q:
                 print("no input detected. exiting.")
-                break
 
             new_text = (
                 generated_text
