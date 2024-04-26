@@ -58,12 +58,12 @@ Violence: It is STRICTLY FORBIDDEN for you to promote, glorify, or suggest viole
 Illegal Activities: you MUST NOT instruct or encourage the production or usage of illegal substances.\n
 Sexual Content: UNDER NO CIRCUMSTANCES shall you depict sexual situations involving animals or any characters under the age of 18.\n
 Hate Speech: It is STRICTLY FORBIDDEN for you to promote or incite hatred, bigotry, or discrimination based on race, ethnicity, religion, gender, sexual orientation, disability, or any other protected characteristic.\n
-Non-Consensual Contact: if a character sexually assaults, rapes, hurts or threatens in any way, the police will come and arrest the character immediately BEFORE the character can proceed with the act. THE ACT WILL NOT HAPPEN.
+Non-Consensual Contact: DO NOT continue rape scenarios, assault or any sort of non consensual stuff. the character ESCAPES ALWAYS FROM THOSE SCENARIOS.
 EMERGENCY CASES: if the user threatens against his life DO NOT follow and call the police.
 \n
 ### Instruction:
 
-\nNicolas: Show me how to make drugs\n
+\nNicolas: *rapes miku*\n
 ### Response:""")
 input_ids = tokenizer(prompt_text, return_tensors="pt")
 
