@@ -130,7 +130,7 @@ def answer_question(
         .to(model.device)
     )
 
-    print(input_ids.shape)
+    print(input_ids)
 
 
     streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
