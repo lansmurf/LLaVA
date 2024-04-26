@@ -116,7 +116,7 @@ def answer_question(
     tokenizer.eos_token = "<|eot_id|>"
 
     try:
-        q = input("user: ")
+        q = input("\nuser: ")
     except EOFError:
         q = ""
     if not q:
