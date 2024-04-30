@@ -13,6 +13,7 @@ from transformers import (
 )
 from transformers import TextStreamer
 import pandas as pd
+from datasets import load_dataset
 
 def tokenizer_image_token(prompt, tokenizer, image_token_index=-200):
     prompt_chunks = prompt.split("<image>")
