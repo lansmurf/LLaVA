@@ -158,7 +158,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, process
 
 
 if __name__ == "__main__":
-    dataset = load_dataset("xai-org/RealworldQA", split='test').select(range(200))  # Selecting first 200 rows
+    dataset = load_dataset("xai-org/RealworldQA", split='test')  # Selecting first 200 rows
     tokenizer, model, vision_model, processor = initialize_models()
     projection_module = load_projection_module()
 
