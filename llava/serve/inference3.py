@@ -102,7 +102,7 @@ class ProjectionModule(nn.Module):
 
 def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device="cuda"):
     projection_module = ProjectionModule(mm_hidden_size, hidden_size)
-    checkpoint = torch.load("/home/nicolas.joniaux/Desktop/failed_chekpoints/checkpoint-2300/mm_projector.bin")
+    checkpoint = torch.load("./mm_projector.bin")
     checkpoint = {k.replace("mm_projector.", ""): v for k, v in checkpoint.items()}
     projection_module.load_state_dict(checkpoint)
     projection_module = projection_module.to(device).half()
@@ -112,11 +112,10 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, process
     results = []
     for example in tqdm(dataset):
         image = example['image']
-        if isinstance(image, str):  # If image is a path
+        if isinstance(image, str):
             image = Image.open(image).convert("RGB")
-        # Assuming image is already an Image object if not a path
         elif not isinstance(image, Image.Image):
-            continue  # Skip if it's neither a path nor an Image object
+            continue
 
         question = example['question']
         correct_answer = example['answer']
@@ -136,7 +135,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, process
             new_embeds, attn_mask = process_tensors(input_ids, projected_embeddings, embedding_layer)
 
             model_kwargs = {
-                "do_sample": False,  # For evaluation, deterministic output can be better
+                "do_sample": False,
                 "temperature": 0.2,
                 "max_new_tokens": 2000,
                 "use_cache": True
