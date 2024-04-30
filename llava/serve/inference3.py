@@ -129,7 +129,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, process
         )
         with torch.inference_mode():
             image_inputs = processor(images=[image], return_tensors="pt", do_resize=True, size={"height": 384, "width": 384}).to("cuda")
-            image_features = vision_model(image_inputs["pixel_values"].squeeze(0).unsqueeze(0), output_hidden_states=True).hidden_states[-2]
+            image_features = vision_model(image_inputs["pixel_values"].squeeze(0).unsqueeze(0).half(), output_hidden_states=True).hidden_states[-2]
             projected_embeddings = projection_module(image_features).to("cuda")
 
             embedding_layer = model.get_input_embeddings()
