@@ -14,6 +14,7 @@ from transformers import (
 from transformers import TextStreamer
 import pandas as pd
 from datasets import load_dataset
+from tqdm import tqdm
 
 def tokenizer_image_token(prompt, tokenizer, image_token_index=-200):
     prompt_chunks = prompt.split("<image>")
@@ -109,7 +110,7 @@ def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device="cuda")
 
 def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, processor, projection_module, output_file="evaluation_results.csv"):
     results = []
-    for example in dataset:
+    for example in tqdm(dataset):
         image = example['image']
         if isinstance(image, str):  # If image is a path
             image = Image.open(image).convert("RGB")
