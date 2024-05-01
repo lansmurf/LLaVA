@@ -102,7 +102,7 @@ class ProjectionModule(nn.Module):
 
 def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device="cuda"):
     projection_module = ProjectionModule(mm_hidden_size, hidden_size)
-    checkpoint = torch.load("./mm_projector.bin")
+    checkpoint = torch.load("/home/nicolas.joniaux/Desktop/llavarepo/LLaVA/checkpoints/llama-3/checkpoint-2800/mm_projector.bin")
     checkpoint = {k.replace("mm_projector.", ""): v for k, v in checkpoint.items()}
     projection_module.load_state_dict(checkpoint)
     projection_module = projection_module.to(device).half()
