@@ -13,15 +13,15 @@ deepspeed llava/train/train_mem.py \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
     --bf16 True \
-    --output_dir ./checkpoints/llama-3 \
+    --output_dir ./checkpoints/llama-3-no-cls \
     --num_train_epochs 1 \
     --per_device_train_batch_size 12 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 4 \
+    --gradient_accumulation_steps 5 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 100 \
-    --save_total_limit 10 \
+    --save_steps 25 \
+    --save_total_limit 40 \
     --learning_rate 1e-3 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
