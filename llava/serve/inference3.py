@@ -100,15 +100,15 @@ class ProjectionModule(nn.Module):
         return self.model(x)
 
 
-def load_projection_module(mm_hidden_size=1152, hidden_size=4096, device="cuda"):
+def load_projection_module(path, mm_hidden_size=1152, hidden_size=4096, device="cuda"):
     projection_module = ProjectionModule(mm_hidden_size, hidden_size)
-    checkpoint = torch.load("/home/nicolas.joniaux/Desktop/llavarepo/LLaVA/checkpoints/llama-3/checkpoint-2800/mm_projector.bin")
+    checkpoint = torch.load(path)
     checkpoint = {k.replace("mm_projector.", ""): v for k, v in checkpoint.items()}
     projection_module.load_state_dict(checkpoint)
     projection_module = projection_module.to(device).half()
     return projection_module
 
-def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, processor, projection_module, output_file="evaluation_results_instruct_proj.csv"):
+def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, processor, projection_module, output_file="evaluation_results_llama_3_no_cls.csv"):
     results = []
     for example in tqdm(dataset):
         image = example['image']
@@ -157,8 +157,12 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, process
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", required=True)
+    args = parser.parse_args()
+
     dataset = load_dataset("xai-org/RealworldQA", split='test')  # Selecting first 200 rows
     tokenizer, model, vision_model, processor = initialize_models()
-    projection_module = load_projection_module()
+    projection_module = load_projection_module(args.path)
 
     evaluate_model_and_save_csv(dataset, tokenizer, model, vision_model, processor, projection_module)
