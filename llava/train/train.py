@@ -530,7 +530,7 @@ def preprocess_llama_3(
 
         target[cur_len:] = IGNORE_INDEX
 
-    rank0_print(f"-------------------------------------\n"
+    print(f"-------------------------------------\n"
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
           f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
