@@ -1089,6 +1089,7 @@ def train(attn_implementation=None):
                 rank0_print('EOS TOKEN: ', tokenizer.eos_token)
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
+            print('CONVERSATION TYPE!!: ', conversation_lib.default_conversation)
         else:
             conversation_lib.default_conversation = conversation_lib.conv_templates["vicuna_v1"]
 
