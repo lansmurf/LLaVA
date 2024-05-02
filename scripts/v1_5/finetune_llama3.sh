@@ -7,7 +7,7 @@ deepspeed llava/train/train_mem.py \
     --data_path /home/nicolas.joniaux/Desktop/ft_llava_data/training_180k.json \
     --image_folder /home/nicolas.joniaux/Desktop/ft_llava_data \
     --vision_tower google/siglip-so400m-patch14-384 \
-    --pretrain_mm_mlp_adapter ./checkpoints/llama-3-no-cls/checkpoint-2400/mm_projector.bin \
+    --pretrain_mm_mlp_adapter ./checkpoints/llama-3-no-cls/checkpoint-2450/mm_projector.bin \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
