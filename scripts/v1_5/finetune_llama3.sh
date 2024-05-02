@@ -13,7 +13,7 @@ deepspeed llava/train/train_mem.py \
     --mm_use_im_start_end False \
     --mm_use_im_patch_token False \
     --image_aspect_ratio pad \
-    --group_by_modality_length True \
+    --group_by_modality_length False \
     --bf16 True \
     --output_dir ./checkpoints/llama-3-finetune \
     --num_train_epochs 1 \

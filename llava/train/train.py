@@ -835,6 +835,7 @@ class LazySupervisedDataset(Dataset):
     def modality_lengths(self):
         length_list = []
         for sample in self.list_data_dict:
+            print(type(sample))
             print(sample['conversations'])
             print(type(sample['conversations']))
             print([type(conv) for conv in sample['conversations']])
