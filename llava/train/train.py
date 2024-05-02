@@ -834,9 +834,12 @@ class LazySupervisedDataset(Dataset):
     @property
     def modality_lengths(self):
         length_list = []
-        for sample in self.list_data_dict:
+        for i, sample in enumerate(self.list_data_dict):
+            print(f"Debugging sample {i}: {sample}")
             cur_len = sum(len(conv['value'].split()) for conv in sample['conversations'])
+            print(f"Debugging current length: {cur_len}")
             cur_len = cur_len if 'image' in sample else -cur_len
+            print(f"Debugging current length after image check: {cur_len}")
             length_list.append(cur_len)
         return length_list
 
