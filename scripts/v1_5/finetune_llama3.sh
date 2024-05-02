@@ -1,7 +1,7 @@
 #!/bin/bash
 
 deepspeed llava/train/train_mem.py \
-    --deepspeed ./scripts/zero3.json \
+    --deepspeed ./scripts/zero3_offload.json \
     --model_name_or_path unsloth/llama-3-8b-Instruct \
     --version llava_llama_3 \
     --data_path /home/nicolas.joniaux/Desktop/ft_llava_data/instruct-180k.json \
