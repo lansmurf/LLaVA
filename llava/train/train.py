@@ -530,7 +530,7 @@ def preprocess_llama_3(
 
         target[cur_len:] = IGNORE_INDEX
 
-    '''rank0_print(f"-------------------------------------\n"
+    rank0_print(f"-------------------------------------\n"
           f"INPUT_IDS_SHAPE {input_ids.shape}\n"
           f"TARGETS SHAPE {targets.shape}\n"
           f"INPUT IDS ARE {input_ids}\n"
@@ -542,7 +542,7 @@ def preprocess_llama_3(
           f"ROUND LEN IS {round_len}\n"
           f"CUR LEN IS {cur_len}\n"
           f"TOTAL LEN IS {total_len}"
-          f"-------------------------------------\n")'''
+          f"-------------------------------------\n")
 
     return dict(
         input_ids=input_ids,
