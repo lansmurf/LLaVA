@@ -4,7 +4,7 @@ deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero3.json \
     --model_name_or_path unsloth/llama-3-8b-Instruct \
     --version llava_llama_3 \
-    --data_path /home/nicolas.joniaux/Desktop/ft_llava_data/training_180k.json \
+    --data_path /home/nicolas.joniaux/Desktop/ft_llava_data/instruct-180k.json \
     --image_folder /home/nicolas.joniaux/Desktop/ft_llava_data \
     --vision_tower google/siglip-so400m-patch14-384 \
     --pretrain_mm_mlp_adapter ./checkpoints/llama-3-no-cls/checkpoint-2450/mm_projector.bin \
@@ -22,7 +22,7 @@ deepspeed llava/train/train_mem.py \
     --gradient_accumulation_steps 5 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 500 \
+    --save_steps 25 \
     --save_total_limit 40 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
