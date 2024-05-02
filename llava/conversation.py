@@ -420,7 +420,7 @@ conv_llama_3 = Conversation(
 )
 
 conv_llava_llama_3 = Conversation(
-    system="""You are a helpful, respectful and honest assistant. Always answer as helpfully as possible.""",
+    system="",
     roles=("user", "assistant"),
     version="llama_3",
     messages=(),

@@ -2,12 +2,12 @@
 
 deepspeed llava/train/train_mem.py \
     --deepspeed ./scripts/zero3.json \
-    --model_name_or_path lmsys/vicuna-13b-v1.5 \
+    --model_name_or_path unsloth/llama-3-8b-Instruct \
     --version llava_llama_3 \
-    --data_path ./playground/data/llava_v1_5_mix665k.json \
-    --image_folder ./playground/data \
-    --vision_tower openai/clip-vit-large-patch14-336 \
-    --pretrain_mm_mlp_adapter ./checkpoints/llava-v1.5-13b-pretrain/mm_projector.bin \
+    --data_path /home/nicolas.joniaux/Desktop/ft_llava_data/training_180k.json \
+    --image_folder /home/nicolas.joniaux/Desktop/ft_llava_data \
+    --vision_tower google/siglip-so400m-patch14-384 \
+    --pretrain_mm_mlp_adapter ./checkpoints/llama-3-no-cls/checkpoint-2400/mm_projector.bin \
     --mm_projector_type mlp2x_gelu \
     --mm_vision_select_layer -2 \
     --mm_use_im_start_end False \
@@ -15,15 +15,15 @@ deepspeed llava/train/train_mem.py \
     --image_aspect_ratio pad \
     --group_by_modality_length True \
     --bf16 True \
-    --output_dir ./checkpoints/llava-v1.5-13b \
+    --output_dir ./checkpoints/llama-3-finetune \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 16 \
+    --per_device_train_batch_size 12 \
     --per_device_eval_batch_size 4 \
-    --gradient_accumulation_steps 1 \
+    --gradient_accumulation_steps 5 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 50000 \
-    --save_total_limit 1 \
+    --save_steps 500 \
+    --save_total_limit 40 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
     --warmup_ratio 0.03 \
