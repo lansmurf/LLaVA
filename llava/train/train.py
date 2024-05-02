@@ -1089,7 +1089,7 @@ def train(attn_implementation=None):
                 rank0_print('EOS TOKEN: ', tokenizer.eos_token)
         if model_args.version in conversation_lib.conv_templates:
             conversation_lib.default_conversation = conversation_lib.conv_templates[model_args.version]
-            print('CONVERSATION TYPE!!: ', conversation_lib.default_conversation)
+            rank0_print('CONVERSATION TYPE!!: ', conversation_lib.default_conversation)
         else:
             conversation_lib.default_conversation = conversation_lib.conv_templates["vicuna_v1"]
 
@@ -1145,6 +1145,8 @@ def train(attn_implementation=None):
     data_module = make_supervised_data_module(tokenizer=tokenizer,
                                               data_args=data_args)
 
+
+    rank0_print('Starting train...')
     trainer = LLaVATrainer(model=model,
                     tokenizer=tokenizer,
                     args=training_args,
