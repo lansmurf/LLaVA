@@ -11,6 +11,7 @@ deepspeed llava/train/train_mem.py \
     --tune_mm_mlp_adapter True \
     --mm_vision_select_layer -2 \
     --mm_patch_merge_type 'flat' \
+    --image_aspect_ratio "pad" \
     --mm_use_im_start_end False \
     --s2 True \
     --mm_use_im_patch_token False \
