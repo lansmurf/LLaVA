@@ -91,7 +91,7 @@ class SiglipVisionTower(nn.Module):
 
 class SiglipVisionTowerS2(SiglipVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
-        self.s2_scales = getattr(args, 's2_scales', '384,768,1152')
+        self.s2_scales = getattr(args, 's2_scales', '378,756,1134')
         self.s2_scales = list(map(int, self.s2_scales.split(',')))
         self.s2_scales.sort()
         self.s2_split_size = self.s2_scales[0]

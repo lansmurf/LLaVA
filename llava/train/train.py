@@ -66,7 +66,7 @@ class ModelArguments:
     mm_patch_merge_type: Optional[str] = field(default='flat')
     mm_vision_select_feature: Optional[str] = field(default="patch")
     s2: bool = field(default=False)
-    s2_scales: Optional[str] = field(default="384,768,1152")
+    s2_scales: Optional[str] = field(default="378,756,1134")
 
 
 @dataclass
