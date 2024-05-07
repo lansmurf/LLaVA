@@ -91,13 +91,13 @@ class SiglipVisionTower(nn.Module):
 
 class SiglipVisionTowerS2(SiglipVisionTower):
     def __init__(self, vision_tower, args, delay_load=False):
-        super().__init__(vision_tower, args, delay_load)
-
         self.s2_scales = getattr(args, 's2_scales', '384,768,1152')
         self.s2_scales = list(map(int, self.s2_scales.split(',')))
         self.s2_scales.sort()
         self.s2_split_size = self.s2_scales[0]
         self.s2_image_size = self.s2_scales[-1]
+
+        super().__init__(vision_tower, args, delay_load)
 
         try:
             from s2wrapper import forward as multiscale_forward
