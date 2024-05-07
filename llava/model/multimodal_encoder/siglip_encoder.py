@@ -115,7 +115,8 @@ class SiglipVisionTowerS2(SiglipVisionTower):
         self.vision_tower.requires_grad_(False)
 
         self.image_processor.size['shortest_edge'] = self.s2_image_size
-        self.image_processor.size['height'] = self.image_processor.size['width'] = self.s2_image_size
+        # Assuming self.s2_image_size is already defined as an integer representing the desired size
+        self.image_processor.size = {'height': self.s2_image_size, 'width': self.s2_image_size}
 
         self.is_loaded = True
 
