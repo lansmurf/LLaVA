@@ -69,6 +69,8 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
         x = split_chessboard(x, num_split=num_split).to(device)
         debug_device(x, f"Split input for size {size}")
 
+        print(f"Image size for scale {size}: {x.shape}")  # Add this line to print the image size
+
         input_multiscale.append(x)
 
     for idx, item in enumerate(input_multiscale):
