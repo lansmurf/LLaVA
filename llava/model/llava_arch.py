@@ -24,6 +24,7 @@ from .multimodal_projector.builder import build_vision_projector
 from llava.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 
 from llava.mm_utils import get_anyres_image_grid_shape
+from ..train.train import rank0_print
 
 
 class LlavaMetaModel:
@@ -203,7 +204,7 @@ class LlavaMetaForCausalLM(ABC):
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
         else:
             image_features = self.encode_images(images)
-            print('IMAGE FEATURES: ', image_features.shape)
+            rank0_print('IMAGE FEATURES: ', image_features.shape)
             #print('IMAGE FEATURES SHAPE: ', image_features.shape)
 
         # TODO: image start / end is not implemented here to support pretraining.
