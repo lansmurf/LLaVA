@@ -49,7 +49,7 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
     assert output_shape == 'bnc' or num_prefix_token == 0, "For ConvNet there shouldn't be any prefix token."
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    input = input.to(device).to(torch.float32)
+    input = input.to(device).to(torch.float16)
 
     debug_device(input, "Initial input")
 
@@ -107,7 +107,7 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
 
     output_size = outs_multiscale[resize_output_to_idx].shape[-2]
     out = torch.cat(
-        [F.interpolate(outs_multiscale[i].to(torch.float32), size=output_size, mode='area').to(outs_multiscale[i].dtype)
+        [F.interpolate(outs_multiscale[i].to(torch.float16), size=output_size, mode='area').to(outs_multiscale[i].dtype)
          for i in range(len(outs_multiscale))], dim=1).to(device)
     debug_device(out, "Final concatenated output")
 
