@@ -34,6 +34,8 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, outp
 
         prompt = f"<|start_header_id|>user<|end_header_id|>\n\n<image>{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
 
+        print(prompt)
+
         input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt').unsqueeze(0).to(model.device)
 
         with torch.inference_mode():
@@ -52,6 +54,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, outp
 
             output_ids = model.generate(input_ids, **model_kwargs)
             generated_text = tokenizer.decode(output_ids[0]).strip()
+            print(generated_text)
 
         results.append({
             'Image Path': image if isinstance(image, str) else 'Image loaded directly',

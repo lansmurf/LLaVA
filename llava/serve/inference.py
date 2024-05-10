@@ -138,7 +138,7 @@ def answer_question(
             images=[image],
             return_tensors="pt",
             do_resize=True,
-            size={"height": 384, "width": 384},
+            size={"height": 378, "width": 378},
         ).to("cuda")
 
         image_inputs = image_inputs["pixel_values"].squeeze(0)
