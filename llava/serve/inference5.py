@@ -85,6 +85,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batc
 
     # Process the last batch if it's not empty and less than batch_size
     if batch_images:
+        print('GOING INSIDE THIS ONE')
         prompts = [f"user\n\n<image>{question}assistant\n\n" for question in batch_questions]
         input_ids = [tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX) for prompt in prompts]
         input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True, padding_value=tokenizer.pad_token_id).to(model.device)
