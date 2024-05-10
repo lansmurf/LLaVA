@@ -5,8 +5,6 @@ import torch.nn as nn
 
 from transformers import SiglipVisionModel, SiglipImageProcessor, SiglipVisionConfig
 
-from llava.train.train import rank0_print
-
 
 class SiglipVisionTower(nn.Module):
     def __init__(self, vision_tower, args, delay_load=False):
