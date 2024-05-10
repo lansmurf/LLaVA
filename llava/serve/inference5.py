@@ -9,7 +9,8 @@ from llava.utils import disable_torch_init
 from llava.mm_utils import process_images, tokenizer_image_token, get_model_name_from_path
 import pandas as pd
 from datasets import load_dataset
-
+from io import BytesIO
+import requests
 
 def load_image(image_file):
     if image_file.startswith('http://') or image_file.startswith('https://'):
@@ -19,37 +20,70 @@ def load_image(image_file):
         image = Image.open(image_file).convert('RGB')
     return image
 
-
-def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batch_size=32,
-                                output_file="evaluation_results_llama_3.csv"):
+def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batch_size=32, output_file="evaluation_results_llama_3.csv"):
     results = []
 
-    for batch in tqdm(dataset.batch(batch_size)):
-        batch_images = []
-        batch_questions = []
-        batch_correct_answers = []
+    # Initialize batch accumulators
+    batch_images = []
+    batch_questions = []
+    batch_correct_answers = []
 
-        for example in batch:
-            if 'image' in example and 'question' in example:
-                image = example['image']
-                if isinstance(image, str):
-                    image = load_image(image)
-                elif not isinstance(image, Image.Image):
-                    continue
-
-                batch_images.append(image)
-                batch_questions.append(example['question'])
-                batch_correct_answers.append(example['answer'])
-
-        if not batch_images:
+    # Iterate through each example in the dataset
+    for example in tqdm(dataset):
+        image = example['image']
+        if isinstance(image, str):
+            image = load_image(image)
+        elif not isinstance(image, Image.Image):
             continue
 
-        prompts = [f"<|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" for question in batch_questions]
+        batch_images.append(image)
+        batch_questions.append(example['question'])
+        batch_correct_answers.append(example['answer'])
 
-        # Tokenize all prompts at once
+        # Check if the batch is full
+        if len(batch_images) == batch_size:
+            # Process the full batch
+            prompts = [f"<|start_header_id|>user<|end_header_id|>\n\n<image>{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" for question in batch_questions]
+            input_ids = [tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX) for prompt in prompts]
+            input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True, padding_value=tokenizer.pad_token_id).to(model.device)
+
+            # Process all images at once
+            image_tensors = process_images(batch_images, image_processor, model.config)
+            image_tensors = image_tensors.to(model.device, dtype=torch.float16)
+            image_sizes = [image.size for image in batch_images]
+
+            with torch.inference_mode():
+                model_kwargs = {
+                    'do_sample': False,
+                    'temperature': 0.2,
+                    'max_new_tokens': 2000,
+                    'use_cache': True,
+                    'images': image_tensors,
+                    'image_sizes': image_sizes,
+                }
+
+                output_ids = model.generate(input_ids, **model_kwargs)
+
+                # Decode each item in the batch
+                for idx, output_id in enumerate(output_ids):
+                    generated_text = tokenizer.decode(output_id, skip_special_tokens=True).strip()
+                    results.append({
+                        'Image Path': batch_images[idx] if isinstance(batch_images[idx], str) else 'Image loaded directly',
+                        'Question': batch_questions[idx],
+                        'Correct Answer': batch_correct_answers[idx],
+                        'Generated Answer': generated_text
+                    })
+
+            # Clear the batch accumulators
+            batch_images = []
+            batch_questions = []
+            batch_correct_answers = []
+
+    # Process the last batch if it's not empty and less than batch_size
+    if batch_images:
+        prompts = [f"user\n\n<image>{question}assistant\n\n" for question in batch_questions]
         input_ids = [tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX) for prompt in prompts]
-        input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True,
-                                                    padding_value=tokenizer.pad_token_id).to(model.device)
+        input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True, padding_value=tokenizer.pad_token_id).to(model.device)
 
         # Process all images at once
         image_tensors = process_images(batch_images, image_processor, model.config)
@@ -72,8 +106,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batc
             for idx, output_id in enumerate(output_ids):
                 generated_text = tokenizer.decode(output_id, skip_special_tokens=True).strip()
                 results.append({
-                    'Image Path': batch[idx]['image'] if isinstance(batch[idx]['image'],
-                                                                    str) else 'Image loaded directly',
+                    'Image Path': batch_images[idx] if isinstance(batch_images[idx], str) else 'Image loaded directly',
                     'Question': batch_questions[idx],
                     'Correct Answer': batch_correct_answers[idx],
                     'Generated Answer': generated_text
@@ -100,9 +133,7 @@ if __name__ == "__main__":
     # Load model and tokenizer using the first script's mechanism
     disable_torch_init()
     model_name = get_model_name_from_path(args.model_path)
-    tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name,
-                                                                           args.load_8bit, args.load_4bit,
-                                                                           device=args.device)
+    tokenizer, model, image_processor, context_len = load_pretrained_model(args.model_path, args.model_base, model_name, args.load_8bit, args.load_4bit, device=args.device)
 
     # Load dataset
     dataset = load_dataset("xai-org/RealworldQA", split='test')
