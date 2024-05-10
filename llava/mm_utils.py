@@ -181,6 +181,7 @@ def process_images(images, image_processor, model_cfg):
         return image_processor(images, return_tensors='pt')['pixel_values']
 
     print('NEW IMAGES LEN: ', len(new_images))
+    print('NEW IMAGE SHAPE:', new_images[0].shape)
 
     if all(x.shape == new_images[0].shape for x in new_images):
         new_images = torch.stack(new_images, dim=0)
