@@ -104,7 +104,7 @@ class SiglipVisionTowerS2(SiglipVisionTower):
         super().__init__(vision_tower, args, delay_load)
 
         try:
-            from s2wrapper import forward as multiscale_forward
+            from s2_stuff import forward as multiscale_forward
         except ImportError:
             raise ImportError('Package s2wrapper not found! Please install by running: \npip install git+https://github.com/bfshi/scaling_on_scales.git')
         self.multiscale_forward = multiscale_forward
