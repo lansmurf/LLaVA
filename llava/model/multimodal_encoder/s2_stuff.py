@@ -41,7 +41,7 @@ def batched_forward(model, x, batch_size=-1):
 
 
 def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resize_output_to_idx=0, num_prefix_token=0,
-            output_shape='bnc', split_forward=False):
+            output_shape='bnc', split_forward=True):
     assert input.dim() == 4, "Input image must be in the shape of BxCxHxW."
     assert input.shape[2] == input.shape[3], "Currently only square images are supported."
     assert output_shape in ['bnc',
