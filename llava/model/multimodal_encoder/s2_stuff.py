@@ -47,6 +47,7 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
     model = model.to(device)
     input = input.to(device)
 
+    print(f"Input is on {input.device}")  # Check the device of the input
     b, c, input_size, _ = input.shape
 
     # image size for each scale
@@ -58,10 +59,19 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
     num_splits = [math.ceil(size / max_split_size) for size in img_sizes]   # number of splits each scale
     input_multiscale = []
     for size, num_split in zip(img_sizes, num_splits):
-        # Example for interpolations
-        x = F.interpolate(input.to(device).to(torch.float32), size=size, mode='bicubic').to(input.dtype).to(device)
+        x = F.interpolate(input.to(torch.float32), size=size, mode='bicubic').to(input.dtype)
         x = split_chessboard(x, num_split=num_split)
         input_multiscale.append(x)
+
+    for idx, item in enumerate(input_multiscale):
+        if isinstance(item, list):
+            for sub_item in item:
+                assert sub_item.device == device, f"Item {idx} in input_multiscale is not on {device}"
+        else:
+            assert item.device == device, f"Item {idx} in input_multiscale is not on {device}"
+
+        print(
+            f"Item {idx} in input_multiscale is on {item.device if isinstance(item, torch.Tensor) else [i.device for i in item]}")
 
     # run feedforward on each scale
     outs_multiscale = [batched_forward(model, x, b) if split_forward else model(x) for x in input_multiscale]
