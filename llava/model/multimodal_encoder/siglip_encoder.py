@@ -106,7 +106,7 @@ class SiglipVisionTowerS2(SiglipVisionTower):
         try:
             from s2_stuff import forward as multiscale_forward
         except ImportError:
-            raise ImportError('Package s2wrapper not found! Please install by running: \npip install git+https://github.com/bfshi/scaling_on_scales.git')
+            raise ImportError('sos fucked')
         self.multiscale_forward = multiscale_forward
 
     def load_model(self, device_map=None):
