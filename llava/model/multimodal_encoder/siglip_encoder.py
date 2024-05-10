@@ -133,6 +133,7 @@ class SiglipVisionTowerS2(SiglipVisionTower):
     @torch.no_grad()
     def forward(self, images):
         print("STARTING TIMING AT SIGLIP MULTISCALE FORWARD")
+        print(images.shape)
         start_time = time.time()  # Start timing the entire forward method
 
         if isinstance(images, list):
