@@ -80,7 +80,13 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
         if split_forward:
             out = batched_forward(model, x, b)
         else:
+            import time
+
+            start_time = time.time()
             out = model(x)
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print("Execution time:", execution_time, "seconds")
 
         out = out.to(device)  # Ensure output is on the right device
         debug_device(out, "Model output before concatenating scales")
