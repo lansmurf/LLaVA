@@ -47,10 +47,14 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batc
             input_ids = [tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX) for prompt in prompts]
             input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True, padding_value=tokenizer.pad_token_id).to(model.device)
 
+            print(input_ids.shape)
             # Process all images at once
             image_tensors = process_images(batch_images, image_processor, model.config)
             image_tensors = image_tensors.to(model.device, dtype=torch.float16)
             image_sizes = [image.size for image in batch_images]
+
+            print(image_tensors.shape)
+            print(image_sizes)
 
             with torch.inference_mode():
                 model_kwargs = {
