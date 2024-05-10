@@ -11,8 +11,7 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-
-
+import time
 from abc import ABC, abstractmethod
 
 import torch
@@ -139,8 +138,22 @@ class LlavaMetaForCausalLM(ABC):
         return self.get_model().get_vision_tower()
 
     def encode_images(self, images):
+        print("ENCODING IMAGES")
+        start_time = time.time()  # Start timing the entire encode_images method
+
+        vision_start = time.time()  # Start timing vision tower processing
         image_features = self.get_model().get_vision_tower()(images)
+        print(
+            f"Time for vision tower processing: {(time.time() - vision_start) * 1000:.2f} ms")  # Print time in ms
+
+        mm_projector_start = time.time()  # Start timing mm_projector processing
         image_features = self.get_model().mm_projector(image_features)
+        print(
+            f"Time for mm_projector processing: {(time.time() - mm_projector_start) * 1000:.2f} ms")  # Print time in ms
+
+        print(
+            f"Total time for encode_images method: {(time.time() - start_time) * 1000:.2f} ms")  # Print total time in ms
+
         return image_features
 
     def prepare_inputs_labels_for_multimodal(
@@ -151,6 +164,7 @@ class LlavaMetaForCausalLM(ABC):
         if vision_tower is None or images is None or input_ids.shape[1] == 1:
             return input_ids, position_ids, attention_mask, past_key_values, None, labels
 
+        print('PREPPING FOR MULTIMODAL')
         print(len(images))
 
         if type(images) is list or images.ndim == 5:
@@ -204,7 +218,7 @@ class LlavaMetaForCausalLM(ABC):
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
         else:
             image_features = self.encode_images(images)
-            rank0_print('IMAGE FEATURES: ', image_features.shape)
+            print('IMAGE FEATURES: ', image_features.shape)
             #print('IMAGE FEATURES SHAPE: ', image_features.shape)
 
         # TODO: image start / end is not implemented here to support pretraining.

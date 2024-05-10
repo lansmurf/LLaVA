@@ -132,7 +132,7 @@ class SiglipVisionTowerS2(SiglipVisionTower):
 
     @torch.no_grad()
     def forward(self, images):
-        rank0_print("STARTING TIMING AT SIGLIP FORWARD")
+        print("STARTING TIMING AT SIGLIP MULTISCALE FORWARD")
         start_time = time.time()  # Start timing the entire forward method
 
         if isinstance(images, list):
@@ -142,16 +142,16 @@ class SiglipVisionTowerS2(SiglipVisionTower):
                 image_feature = self.multiscale_forward(self.forward_feature, image.unsqueeze(0),
                                                         img_sizes=self.s2_scales, max_split_size=self.s2_split_size)
                 image_features.append(image_feature)
-                rank0_print(
+                print(
                     f"Time for image {idx}: {(time.time() - image_start) * 1000:.2f} ms")  # Print time for this image in ms
         else:
             single_start = time.time()  # Start timing for single image case
             image_features = self.multiscale_forward(self.forward_feature, images, img_sizes=self.s2_scales,
                                                      max_split_size=self.s2_split_size)
-            rank0_print(
+            print(
                 f"Time for single image processing: {(time.time() - single_start) * 1000:.2f} ms")  # Print time for single image processing in ms
 
-        rank0_print(
+        print(
             f"Total time for forward method: {(time.time() - start_time) * 1000:.2f} ms")  # Print total time for forward method in ms
 
         return image_features
