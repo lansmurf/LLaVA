@@ -44,7 +44,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batc
         if len(batch_images) == batch_size:
             # Process the full batch
             prompts = [f"<|start_header_id|>user<|end_header_id|>\n\n<image>{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" for question in batch_questions]
-            input_ids = [tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX) for prompt in prompts]
+            input_ids = [tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors='pt') for prompt in prompts]
             input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=True, padding_value=tokenizer.pad_token_id).to(model.device)
 
             print(input_ids.shape)
