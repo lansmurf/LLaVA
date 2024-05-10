@@ -9,7 +9,6 @@ from llava.utils import disable_torch_init
 from llava.mm_utils import process_images, tokenizer_image_token, get_model_name_from_path
 import pandas as pd
 from datasets import load_dataset
-from transformers import default_data_collator
 
 
 def load_image(image_file):
@@ -25,19 +24,27 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batc
                                 output_file="evaluation_results_llama_3.csv"):
     results = []
 
-    # Preparing the dataset in batches
-    for batch_start in tqdm(range(0, len(dataset), batch_size)):
-        batch = dataset[batch_start:batch_start + batch_size]
-        questions = [example['question'] for example in batch]
-        correct_answers = [example['answer'] for example in batch]
-        images = [load_image(example['image']) if isinstance(example['image'], str) else example['image'] for example in
-                  batch if isinstance(example['image'], (str, Image.Image))]
+    for batch in tqdm(dataset.batch(batch_size)):
+        batch_images = []
+        batch_questions = []
+        batch_correct_answers = []
 
-        # Skip batch if no valid images
-        if not images:
+        for example in batch:
+            if 'image' in example and 'question' in example:
+                image = example['image']
+                if isinstance(image, str):
+                    image = load_image(image)
+                elif not isinstance(image, Image.Image):
+                    continue
+
+                batch_images.append(image)
+                batch_questions.append(example['question'])
+                batch_correct_answers.append(example['answer'])
+
+        if not batch_images:
             continue
 
-        prompts = [f"<|start_header_id|>user<|end_header_id|>\n\n<image>{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" for question in questions]
+        prompts = [f"<|start_header_id|>user<|end_header_id|>\n\n{question}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n" for question in batch_questions]
 
         # Tokenize all prompts at once
         input_ids = [tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX) for prompt in prompts]
@@ -45,15 +52,15 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batc
                                                     padding_value=tokenizer.pad_token_id).to(model.device)
 
         # Process all images at once
-        image_tensors = process_images(images, image_processor, model.config)
+        image_tensors = process_images(batch_images, image_processor, model.config)
         image_tensors = image_tensors.to(model.device, dtype=torch.float16)
-        image_sizes = [image.size for image in images]
+        image_sizes = [image.size for image in batch_images]
 
         with torch.inference_mode():
             model_kwargs = {
                 'do_sample': False,
                 'temperature': 0.2,
-                'max_new_tokens': 100,
+                'max_new_tokens': 2000,
                 'use_cache': True,
                 'images': image_tensors,
                 'image_sizes': image_sizes,
@@ -67,8 +74,8 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, batc
                 results.append({
                     'Image Path': batch[idx]['image'] if isinstance(batch[idx]['image'],
                                                                     str) else 'Image loaded directly',
-                    'Question': questions[idx],
-                    'Correct Answer': correct_answers[idx],
+                    'Question': batch_questions[idx],
+                    'Correct Answer': batch_correct_answers[idx],
                     'Generated Answer': generated_text
                 })
 
