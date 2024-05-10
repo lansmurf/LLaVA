@@ -46,7 +46,7 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     input = input.to(device)
 
-    print(f"Input is on {input.device}")  # Check the device of the input
+    print(f"Input is on {input.device} and is of type {input.dtype}")  # Check the device of the input
     b, c, input_size, _ = input.shape
 
     # image size for each scale
@@ -59,7 +59,9 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
     input_multiscale = []
     for size, num_split in zip(img_sizes, num_splits):
         x = F.interpolate(input.to(torch.float32), size=size, mode='bicubic').to(input.dtype)
+        print('x device 1', x.device)
         x = split_chessboard(x, num_split=num_split)
+        print('x device 2', x.device)
         input_multiscale.append(x)
 
     for idx, item in enumerate(input_multiscale):
