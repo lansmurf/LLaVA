@@ -39,50 +39,55 @@ def batched_forward(model, x, batch_size=-1):
         outs = [model(x) for x in x_batched]
         return torch.cat(outs, dim=0)
 
+
 def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resize_output_to_idx=0, num_prefix_token=0,
             output_shape='bnc', split_forward=False):
-
     assert input.dim() == 4, "Input image must be in the shape of BxCxHxW."
     assert input.shape[2] == input.shape[3], "Currently only square images are supported."
-    assert output_shape in ['bnc', 'bchw'], "Output shape should be either BxNxC (e.g., ViT) or BxCxHxW (e.g., ConvNet)."
+    assert output_shape in ['bnc',
+                            'bchw'], "Output shape should be either BxNxC (e.g., ViT) or BxCxHxW (e.g., ConvNet)."
     assert output_shape == 'bnc' or num_prefix_token == 0, "For ConvNet there shouldn't be any prefix token."
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    input = input.to(device)
+    model = model.to(device)
+    input = input.to(device).to(torch.float32)
+
     debug_device(input, "Initial input")
 
     b, c, input_size, _ = input.shape
 
-    # image size for each scale
     assert scales is not None or img_sizes is not None, "Please assign either scales or img_sizes."
     img_sizes = img_sizes or [int(input_size * scale) for scale in scales]
 
-    # prepare multiscale inputs
     max_split_size = max_split_size or input_size
     num_splits = [math.ceil(size / max_split_size) for size in img_sizes]
     input_multiscale = []
+
     for size, num_split in zip(img_sizes, num_splits):
-        x = F.interpolate(input.to(torch.float32), size=size, mode='bicubic').to(input.dtype)
+        x = F.interpolate(input, size=(size, size), mode='bicubic').to(input.dtype)
         debug_device(x, f"Interpolated input for size {size}")
-        x = split_chessboard(x, num_split=num_split)
+
+        x = split_chessboard(x, num_split=num_split).to(device)
         debug_device(x, f"Split input for size {size}")
+
         input_multiscale.append(x)
 
-    # Debug each sub-item in input_multiscale
     for idx, item in enumerate(input_multiscale):
         debug_device(item, f"input_multiscale[{idx}]")
 
-    # run feedforward on each scale
     outs_multiscale = []
     for x in input_multiscale:
+        x = x.to(device)
         if split_forward:
             out = batched_forward(model, x, b)
         else:
             out = model(x)
+
+        out = out.to(device)  # Ensure output is on the right device
         debug_device(out, "Model output before concatenating scales")
+
         outs_multiscale.append(out)
 
-    # Handling prefix tokens if present
     if num_prefix_token > 0:
         outs_prefix_multiscale = [out[:, :num_prefix_token] for out in outs_multiscale]
         outs_multiscale = [out[:, num_prefix_token:] for out in outs_multiscale]
@@ -90,31 +95,32 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
             debug_device(out, f"Prefix tokens at scale {idx}")
 
     if output_shape == 'bnc':
-        outs_multiscale = [rearrange(out, 'b (h w) c -> b c h w', h=int(out.shape[1] ** 0.5), w=int(out.shape[1] ** 0.5))
-                           for out in outs_multiscale]
+        outs_multiscale = [
+            rearrange(out, 'b (h w) c -> b c h w', h=int(out.shape[1] ** 0.5), w=int(out.shape[1] ** 0.5))
+            for out in outs_multiscale]
         for idx, out in enumerate(outs_multiscale):
             debug_device(out, f"Rearranged output at scale {idx}")
 
-    # Merge outputs of different splits for each scale separately
-    outs_multiscale = [merge_chessboard(out, num_split=num_split) for num_split, out in zip(num_splits, outs_multiscale)]
+    outs_multiscale = [merge_chessboard(out, num_split=num_split).to(device) for num_split, out in
+                       zip(num_splits, outs_multiscale)]
     for idx, out in enumerate(outs_multiscale):
         debug_device(out, f"Merged chessboard at scale {idx}")
 
-    # Interpolate outputs from different scales and concatenate together
     output_size = outs_multiscale[resize_output_to_idx].shape[-2]
-    out = torch.cat([F.interpolate(outs_multiscale[i].to(torch.float32), size=output_size, mode='area').to(outs_multiscale[i].dtype)
-                     for i in range(len(outs_multiscale))], dim=1)
+    out = torch.cat(
+        [F.interpolate(outs_multiscale[i].to(torch.float32), size=output_size, mode='area').to(outs_multiscale[i].dtype)
+         for i in range(len(outs_multiscale))], dim=1).to(device)
     debug_device(out, "Final concatenated output")
 
     if output_shape == 'bnc':
-        out = rearrange(out, 'b c h w -> b (h w) c')
+        out = rearrange(out, 'b c h w -> b (h w) c').to(device)
         debug_device(out, "Final rearranged output")
 
     if num_prefix_token > 0:
-        # Take the mean of prefix tokens from different splits for each scale
-        outs_prefix_multiscale = [torch.stack(out.split(b, dim=0), dim=0).mean(dim=0) for out in outs_prefix_multiscale]
-        out_prefix_multiscale = torch.cat(outs_prefix_multiscale, dim=-1)
-        out = torch.cat([out_prefix_multiscale, out], dim=1)
+        outs_prefix_multiscale = [torch.stack(out.split(b, dim=0), dim=0).mean(dim=0).to(device) for out in
+                                  outs_prefix_multiscale]
+        out_prefix_multiscale = torch.cat(outs_prefix_multiscale, dim=-1).to(device)
+        out = torch.cat([out_prefix_multiscale, out], dim=1).to(device)
         debug_device(out, "Final output with prefix tokens")
 
     return out
