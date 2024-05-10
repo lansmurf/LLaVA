@@ -3,6 +3,10 @@ import torch
 import torch.nn.functional as F
 from einops import rearrange
 
+
+def debug_device(tensor, name):
+    print(f"{name} is on {tensor.device} and is of type {tensor.dtype}")
+
 def split_chessboard(x, num_split):
     """
         x: b * c * h * w
@@ -45,8 +49,8 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     input = input.to(device)
+    debug_device(input, "Initial input")
 
-    print(f"Input is on {input.device} and is of type {input.dtype}")  # Check the device of the input
     b, c, input_size, _ = input.shape
 
     # image size for each scale
@@ -54,54 +58,63 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
     img_sizes = img_sizes or [int(input_size * scale) for scale in scales]
 
     # prepare multiscale inputs
-    max_split_size = max_split_size or input_size   # The maximum size of each split of image. Set as the input size by default
-    num_splits = [math.ceil(size / max_split_size) for size in img_sizes]   # number of splits each scale
+    max_split_size = max_split_size or input_size
+    num_splits = [math.ceil(size / max_split_size) for size in img_sizes]
     input_multiscale = []
     for size, num_split in zip(img_sizes, num_splits):
         x = F.interpolate(input.to(torch.float32), size=size, mode='bicubic').to(input.dtype)
-        print('x device 1', x.device)
+        debug_device(x, f"Interpolated input for size {size}")
         x = split_chessboard(x, num_split=num_split)
-        print('x device 2', x.device)
+        debug_device(x, f"Split input for size {size}")
         input_multiscale.append(x)
 
+    # Debug each sub-item in input_multiscale
     for idx, item in enumerate(input_multiscale):
-        if isinstance(item, list):
-            for sub_idx, sub_item in enumerate(item):
-                if sub_item.device != device:
-                    print(f"Correcting device for item {idx}, sub-item {sub_idx}")
-                    sub_item = sub_item.to(device)
-                print(f"Sub-item {sub_idx} of item {idx} is on {sub_item.device}")
-        else:
-            if item.device != device:
-                print(f"Correcting device for item {idx}")
-                item = item.to(device)
-            print(f"Item {idx} in input_multiscale is on {item.device}")
+        debug_device(item, f"input_multiscale[{idx}]")
 
     # run feedforward on each scale
-    outs_multiscale = [batched_forward(model, x, b) if split_forward else model(x) for x in input_multiscale]
+    outs_multiscale = []
+    for x in input_multiscale:
+        if split_forward:
+            out = batched_forward(model, x, b)
+        else:
+            out = model(x)
+        debug_device(out, "Model output before concatenating scales")
+        outs_multiscale.append(out)
+
+    # Handling prefix tokens if present
     if num_prefix_token > 0:
         outs_prefix_multiscale = [out[:, :num_prefix_token] for out in outs_multiscale]
         outs_multiscale = [out[:, num_prefix_token:] for out in outs_multiscale]
+        for idx, out in enumerate(outs_prefix_multiscale):
+            debug_device(out, f"Prefix tokens at scale {idx}")
+
     if output_shape == 'bnc':
         outs_multiscale = [rearrange(out, 'b (h w) c -> b c h w', h=int(out.shape[1] ** 0.5), w=int(out.shape[1] ** 0.5))
                            for out in outs_multiscale]
+        for idx, out in enumerate(outs_multiscale):
+            debug_device(out, f"Rearranged output at scale {idx}")
 
-    # merge outputs of different splits for each scale separately
+    # Merge outputs of different splits for each scale separately
     outs_multiscale = [merge_chessboard(out, num_split=num_split) for num_split, out in zip(num_splits, outs_multiscale)]
+    for idx, out in enumerate(outs_multiscale):
+        debug_device(out, f"Merged chessboard at scale {idx}")
 
-    # interpolate outputs from different scales and concat together
+    # Interpolate outputs from different scales and concatenate together
     output_size = outs_multiscale[resize_output_to_idx].shape[-2]
-    out = torch.cat([F.interpolate(outs_multiscale[i].to(torch.float32), size=output_size,
-                                   mode='area').to(outs_multiscale[i].dtype)
+    out = torch.cat([F.interpolate(outs_multiscale[i].to(torch.float32), size=output_size, mode='area').to(outs_multiscale[i].dtype)
                      for i in range(len(outs_multiscale))], dim=1)
+    debug_device(out, "Final concatenated output")
+
     if output_shape == 'bnc':
         out = rearrange(out, 'b c h w -> b (h w) c')
+        debug_device(out, "Final rearranged output")
+
     if num_prefix_token > 0:
-        # take the mean of prefix tokens from different splits for each scale
+        # Take the mean of prefix tokens from different splits for each scale
         outs_prefix_multiscale = [torch.stack(out.split(b, dim=0), dim=0).mean(dim=0) for out in outs_prefix_multiscale]
         out_prefix_multiscale = torch.cat(outs_prefix_multiscale, dim=-1)
         out = torch.cat([out_prefix_multiscale, out], dim=1)
-
-    print('OUT DEVICE', out.device)
+        debug_device(out, "Final output with prefix tokens")
 
     return out
