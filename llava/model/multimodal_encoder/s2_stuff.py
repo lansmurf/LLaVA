@@ -44,7 +44,6 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
     assert output_shape == 'bnc' or num_prefix_token == 0, "For ConvNet there shouldn't be any prefix token."
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = model.to(device)
     input = input.to(device)
 
     print(f"Input is on {input.device}")  # Check the device of the input
