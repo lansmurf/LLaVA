@@ -172,6 +172,7 @@ def process_images(images, image_processor, model_cfg):
             image = image_processor.preprocess(image, return_tensors='pt')['pixel_values'][0]
             new_images.append(image)
     elif image_aspect_ratio == "anyres":
+        print('going here? lmao')
         for image in images:
             image = process_anyres_image(image, image_processor, model_cfg.image_grid_pinpoints)
             new_images.append(image)
