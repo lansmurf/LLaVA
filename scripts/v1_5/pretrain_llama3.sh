@@ -9,7 +9,7 @@ deepspeed llava/train/train_mem.py \
     --vision_tower google/siglip-so400m-patch14-384 \
     --mm_projector_type mlp2x_gelu \
     --tune_mm_mlp_adapter True \
-    --mm_vision_select_layer -2 \
+    --mm_vision_select_layer -1 \
     --mm_patch_merge_type 'flat' \
     --image_aspect_ratio "pad" \
     --mm_use_im_start_end False \
