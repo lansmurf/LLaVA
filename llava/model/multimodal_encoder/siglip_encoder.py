@@ -1,7 +1,11 @@
+import time
+
 import torch
 import torch.nn as nn
 
 from transformers import SiglipVisionModel, SiglipImageProcessor, SiglipVisionConfig
+
+from llava.train.train import rank0_print
 
 
 class SiglipVisionTower(nn.Module):
@@ -128,13 +132,26 @@ class SiglipVisionTowerS2(SiglipVisionTower):
 
     @torch.no_grad()
     def forward(self, images):
-        if type(images) is list:
+        start_time = time.time()  # Start timing the entire forward method
+
+        if isinstance(images, list):
             image_features = []
-            for image in images:
-                image_feature = self.multiscale_forward(self.forward_feature, image.unsqueeze(0), img_sizes=self.s2_scales, max_split_size=self.s2_split_size)
+            for idx, image in enumerate(images):
+                image_start = time.time()  # Start timing for this image
+                image_feature = self.multiscale_forward(self.forward_feature, image.unsqueeze(0),
+                                                        img_sizes=self.s2_scales, max_split_size=self.s2_split_size)
                 image_features.append(image_feature)
+                rank0_print(
+                    f"Time for image {idx}: {(time.time() - image_start) * 1000:.2f} ms")  # Print time for this image in ms
         else:
-            image_features = self.multiscale_forward(self.forward_feature, images, img_sizes=self.s2_scales, max_split_size=self.s2_split_size)
+            single_start = time.time()  # Start timing for single image case
+            image_features = self.multiscale_forward(self.forward_feature, images, img_sizes=self.s2_scales,
+                                                     max_split_size=self.s2_split_size)
+            rank0_print(
+                f"Time for single image processing: {(time.time() - single_start) * 1000:.2f} ms")  # Print time for single image processing in ms
+
+        rank0_print(
+            f"Total time for forward method: {(time.time() - start_time) * 1000:.2f} ms")  # Print total time for forward method in ms
 
         return image_features
 
