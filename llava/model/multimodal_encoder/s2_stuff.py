@@ -66,13 +66,16 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
 
     for idx, item in enumerate(input_multiscale):
         if isinstance(item, list):
-            for sub_item in item:
-                assert sub_item.device == device, f"Item {idx} in input_multiscale is not on {device}"
+            for sub_idx, sub_item in enumerate(item):
+                if sub_item.device != device:
+                    print(f"Correcting device for item {idx}, sub-item {sub_idx}")
+                    sub_item = sub_item.to(device)
+                print(f"Sub-item {sub_idx} of item {idx} is on {sub_item.device}")
         else:
-            assert item.device == device, f"Item {idx} in input_multiscale is not on {device}"
-
-        print(
-            f"Item {idx} in input_multiscale is on {item.device if isinstance(item, torch.Tensor) else [i.device for i in item]}")
+            if item.device != device:
+                print(f"Correcting device for item {idx}")
+                item = item.to(device)
+            print(f"Item {idx} in input_multiscale is on {item.device}")
 
     # run feedforward on each scale
     outs_multiscale = [batched_forward(model, x, b) if split_forward else model(x) for x in input_multiscale]
@@ -98,5 +101,7 @@ def forward(model, input, scales=None, img_sizes=None, max_split_size=None, resi
         outs_prefix_multiscale = [torch.stack(out.split(b, dim=0), dim=0).mean(dim=0) for out in outs_prefix_multiscale]
         out_prefix_multiscale = torch.cat(outs_prefix_multiscale, dim=-1)
         out = torch.cat([out_prefix_multiscale, out], dim=1)
+
+    print('OUT DEVICE', out.device)
 
     return out
