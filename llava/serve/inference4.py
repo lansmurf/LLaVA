@@ -47,7 +47,7 @@ def evaluate_model_and_save_csv(dataset, tokenizer, model, image_processor, outp
                 'do_sample': False,
                 'temperature': 0.2,
                 'max_new_tokens': 2000,
-                'use_cache': True,
+                'use_cache': False,
                 'images': image_tensor,
                 'image_sizes': image_size,
             }
