@@ -104,7 +104,7 @@ class SiglipVisionTowerS2(SiglipVisionTower):
         super().__init__(vision_tower, args, delay_load)
 
         try:
-            from s2_stuff import forward as multiscale_forward
+            from llava.model.multimodal_encoder.s2_stuff import forward as multiscale_forward
         except ImportError:
             raise ImportError('sos fucked')
         self.multiscale_forward = multiscale_forward
