@@ -165,7 +165,7 @@ class LlavaMetaForCausalLM(ABC):
             return input_ids, position_ids, attention_mask, past_key_values, None, labels
 
         print('PREPPING FOR MULTIMODAL')
-
+        print('IMAGE INPUT SHAPE MULTIMODAL: ', images.shape)
         if type(images) is list or images.ndim == 4:
             if type(images) is list:
                 images = [x.unsqueeze(0) if x.ndim == 3 else x for x in images]
